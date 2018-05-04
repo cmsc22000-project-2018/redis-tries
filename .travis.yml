@@ -1,0 +1,15 @@
+language: c
+
+install: true
+
+branches:
+  only:
+    - master
+    - dev
+
+jobs:
+  include:
+    - stage: build
+      script: echo Hello # dummy command until we have make files
+    - stage: test
+      script: echo World # dummy command until we have make files
