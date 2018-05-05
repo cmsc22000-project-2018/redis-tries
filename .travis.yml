@@ -10,6 +10,6 @@ branches:
 jobs:
   include:
     - stage: build
-      script: echo Hello # dummy command until we have make files
+      script: echo Travis # dummy command until we have make files
     - stage: test
-      script: echo World # dummy command until we have make files
+      script: echo CI # dummy command until we have make files
