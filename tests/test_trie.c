@@ -116,16 +116,16 @@ Test(trie, singleton_search)
     cr_assert_eq(found, 1, "trie_search() returns %d instead of 1 with inserted word", found );
 
     found = trie_search("CS", t); // Checks prefix of inserted word
-    cr_assert_eq(found, -1, "trie_search() returns %d instead of -1
-            with prefix of inserted word", found);
+    cr_assert_eq(found, -1, "trie_search() returns %d instead of -1 "
+            "with prefix of inserted word", found);
 
     found = trie_search("CS22000", t); // Checks extension of inserted word
-    cr_assert_eq(found, 0, "trie_search() returns %d instead of 0
-            with extension of inserted word", found);
+    cr_assert_eq(found, 0, "trie_search() returns %d instead of 0"
+           "  with extension of inserted word", found);
 
     found = trie_search("Computer", t); // Checks different word
-    cr_assert_eq(found, 0, "trie_search() returns %d instead of 0
-            with word different from inserted word", found);
+    cr_assert_eq(found, 0, "trie_search() returns %d instead of 0"
+          "  with word different from inserted word", found);
 }
 
 

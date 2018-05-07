@@ -1,11 +1,9 @@
-
-
-
 /*
     A trie data structure
 */
 
 #include <stdlib.h>
+#include <string.h>
 #include <assert.h>
 #include <math.h>
 #include "trie.h"
@@ -87,7 +85,7 @@ int insert_string(char *word, trie_t *t)
 int trie_search(char* word, trie_t *t)
 {
     int len;
-    trie_t* curr
+    trie_t* curr;
     trie_t** next;
 
     len = strlen(word);
@@ -95,12 +93,13 @@ int trie_search(char* word, trie_t *t)
     next = t->children;
 
     for (int i=0; i<len; i++) {
-        curr = next[word[i]];
+        int j = (int) word[i];
+        curr = next[j];
 
         if (curr == NULL)
             return 0;
 
-        next = next[word[i]]->children;
+        next = next[j]->children;
     }
 
     if (curr->is_word == 1) 
