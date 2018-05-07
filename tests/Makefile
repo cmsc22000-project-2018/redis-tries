@@ -2,7 +2,7 @@ CC = gcc
 CFLAGS = -fPIC -Wall -Wextra -O2 -g -I../include/
 LDFLAGS = -L../ -Wl,-rpath,.
 RM = rm -f
-BIN = test-libgeometry
+BIN = test-libtrie
 LDLIBS = -lcriterion -ltrie
 
 SRCS = test_trie.c
