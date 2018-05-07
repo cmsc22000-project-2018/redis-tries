@@ -1,6 +1,5 @@
-/*
-    A trie data structure
-*/
+
+/* A trie data structure */
 
 #ifndef INCLUDE_TRIE_H_
 #define INCLUDE_TRIE_H_
@@ -99,13 +98,13 @@ int insert_string(char *word, trie_t *t);
 */
 int delete_string(char *word, trie_t *t);
 
-/*
-    Search for a word in a trie.
-
-Details: Returns 1 if word is found. Returns 0 if word is not found at all and -1 if word is found but end node's is_word is 0.
-
-
-*/
+/* Searches for word in a trie t. 
+ *
+ * Returns: 
+ *  - 1 if word is found. 
+ *  - 0 if word is not found at all.
+ *  - -1 if word is found but end node's is_word is 0.
+ */
 int trie_search(char *word, trie_t *t);
 
 #endif
