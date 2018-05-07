@@ -6,9 +6,10 @@
 #include <assert.h>
 #include <math.h>
 #include "trie.h"
+#include "utils.h"
 
 /* See trie.h */
-*trie_t new_trie(char current)
+trie_t *new_trie(char current)
 {
     trie_t *t = calloc(1,sizeof(trie_t));
     
@@ -19,7 +20,7 @@
 
     t->current = current;
 
-    t->children = calloc(1, 256*sizeof(*trie_t));
+    t->children = calloc(256,sizeof(trie_t*));
     if (t->children == NULL){
         error("Could not allocate memory for t->children");
         return NULL;
@@ -36,7 +37,7 @@ int trie_free(trie_t *t)
 {
     assert( t != NULL);
 
-    for (i=0; i<256; i++ ){
+    for (int i=0; i<256; i++ ){
         if (t->children[i] !=NULL)
             trie_free(t->children[i]);
     }
@@ -51,8 +52,10 @@ int add_node(char current, trie_t *t)
 {
     assert( t != NULL);
 
-    if (t->children[current] == NULL)
-        t->children[current] = new_trie(current);
+    unsigned c = (unsigned) current;
+
+    if (t->children[c] == NULL)
+        t->children[c] = new_trie(current);
 
     return 0;  
 
@@ -63,7 +66,7 @@ int insert_string(char *word, trie_t *t)
 {
     assert(t!=NULL);
 
-    if (*word == '/0'){
+    if (*word == '\0'){
         t->is_word=1;
         return 0;
 
@@ -78,6 +81,6 @@ int insert_string(char *word, trie_t *t)
         }
         
         word++;
-        return insert_string(word, t->children[curr]);
+        return insert_string(word, t->children[(unsigned)curr]);
     }
 }

@@ -5,19 +5,18 @@
 #ifndef INCLUDE_TRIE_H_
 #define INCLUDE_TRIE_H_
 
-int ALPHABET_SIZE = 256;
 
 typedef struct trie_t trie_t;
 struct trie_t {
     char current; 
         // The first trie_t will be '/0' for any Trie.
-    trie_t *children[ALPHABET_SIZE];
+    trie_t **children;
          // ALPHABET_SIZE is 256 for all possible characters.
     int is_word; 
         // if is_word is 1, indicates that this is the end of a word. Otherwise 0.
     trie_t *parent;
         // parent trie_t for traversing backwards
-}
+};
 
 /*
     Creates and allocates memory for new trie_t.
@@ -29,7 +28,7 @@ struct trie_t {
      - A pointer to the trie, or NULL if a pointer 
        cannot be allocated
 */
-*trie_t new_trie(char current);
+trie_t *new_trie (char current);
 
 /*
     Free an entire trie.

@@ -40,6 +40,6 @@ Test(trie, free)
 
     rc = trie_free(t);
 
-    cr_assert_eq(rc, SUCCESS, "trie_free failed");
+    cr_assert_eq(rc, 0, "trie_free failed");
 
 }
