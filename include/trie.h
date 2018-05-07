@@ -8,8 +8,7 @@
 int ALPHABET_SIZE = 256;
 
 typedef struct trie_t trie_t;
-trie_t 
-{
+struct trie_t {
     char current; 
         // The first trie_t will be '/0' for any Trie.
     trie_t *children[ALPHABET_SIZE];
@@ -110,5 +109,5 @@ Details: Returns 1 if word is found. Returns 0 if word is not found at all and -
 */
 int trie_search(char *word, trie_t *t);
 
-
+#endif
 
