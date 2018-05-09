@@ -10,6 +10,10 @@ branches:
 jobs:
   include:
     - stage: build
-      script: echo Travis # dummy command until we have make files
+      script: make -C clean all
     - stage: test
-      script: echo CI # dummy command until we have make files
+      script:
+          - make -C clean all
+          - make -C tests/ all
+          - tests/test-libtrie
+      
