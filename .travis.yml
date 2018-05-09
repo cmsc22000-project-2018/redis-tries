@@ -10,10 +10,10 @@ branches:
 jobs:
   include:
     - stage: build
-      script: make -C clean all
+      script: make clean all
     - stage: test
       script:
-          - make -C clean all
+          - make clean all
           - make -C tests/ all
           - tests/test-libtrie
       
