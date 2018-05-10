@@ -19,6 +19,6 @@ jobs:
     - stage: test
       script:
           - make clean all
-          - make -C tests/ all
+          - make -C tests/ clean all
           - tests/test-libtrie
       
