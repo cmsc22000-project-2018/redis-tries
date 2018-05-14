@@ -25,7 +25,7 @@ $(SRCS:.c=.d):%.d:%.c
 hellotype.xo: redismodule.h
 
 hellotype.so: hellotype.xo
-$(LD) -o $@ $< $(SHOBJ_LDFLAGS) $(LIBS) -lc
+	$(LD) -o $@ $< $(SHOBJ_LDFLAGS) $(LIBS) -lc
 
 -include $(SRCS:.c=.d)
 
