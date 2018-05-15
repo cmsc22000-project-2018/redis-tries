@@ -181,7 +181,6 @@ int insert_string(char *word, trie *t)
 
 /* ========================= "trie" type commands (Redis wrapper functions) ======================= */
 
-// insert function (add_node, insert_string and new_trie)
 /* TRIE.INSERT key value */
 int TrieInsert_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc) {
     RedisModule_AutoMemory(ctx); /* Use automatic memory management. */
@@ -220,7 +219,49 @@ int TrieInsert_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int a
     return REDISMODULE_OK;
 }
 
-// contains function (trie_search)
+/* TRIE.CONTAINS key value */
+int TrieContains_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc) {
+    RedisModule_AutoMemory(ctx); /* Use automatic memory management. */
+
+    if (argc != 3) return RedisModule_WrongArity(ctx);
+
+    RedisModuleKey *key = RedisModule_OpenKey(ctx,argv[1],
+        REDISMODULE_READ|REDISMODULE_WRITE);
+    int type = RedisModule_KeyType(key);
+    if (type != REDISMODULE_KEYTYPE_EMPTY &&
+        RedisModule_ModuleTypeGetType(key) != trie)
+    {
+        return RedisModule_ReplyWithError(ctx,REDISMODULE_ERRORMSG_WRONGTYPE);
+    }
+    size_t *dummy; // Do we need to free this?
+    char *temp = RedisModule_StringPtrLen(argv[2], dummy); // Same question here?
+    char *empty = "";
+    if (temp == NULL || strcmp(temp, empty) == 0) {
+        return RedisModule_ReplyWithError(ctx,"ERR invalid value: must be a string");
+    } 
+
+    trie *t;
+    /* Create an empty value object if the key is currently empty. */
+    if (type == REDISMODULE_KEYTYPE_EMPTY) {
+        t = new_trie('\0');
+        RedisModule_ModuleTypeSetValue(key,trie,t);
+    } else {
+        t = RedisModule_ModuleTypeGetValue(key);
+    }
+
+    /* Check for the string. */
+    int c = trie_search(temp, t);
+    
+    if (c == 1) {
+        RedisModule_ReplyWithSimpleString(ctx, "The trie contains %s", temp);
+    } else if (c == 0) {
+        RedisModule_ReplyWithSimpleString(ctx, "The trie does not contain %s", temp);
+    } else {
+        RedisModule_ReplyWithSimpleString(ctx, "The trie contains the prefix %s, but not the word", temp);
+    }       
+    RedisModule_ReplicateVerbatim(ctx);
+    return REDISMODULE_OK;
+}
 
 // delete function
 
