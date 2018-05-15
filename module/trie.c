@@ -265,7 +265,39 @@ int TrieContains_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int
 
 // delete function
 
-// function to show available words in trie?
+// function to show available words in trie
 
 /* ========================== "trie" type methods (Redis data saving and entry functions) ======================= */
 
+/* This function must be present on each Redis module. It is used in order to
+ * register the commands into the Redis server. */
+int RedisModule_OnLoad(RedisModuleCtx *ctx, RedisModuleString **argv, int argc) {
+    REDISMODULE_NOT_USED(argv);
+    REDISMODULE_NOT_USED(argc);
+
+    if (RedisModule_Init(ctx,"trie123az",1,REDISMODULE_APIVER_1)
+        == REDISMODULE_ERR) return REDISMODULE_ERR;
+
+    RedisModuleTypeMethods tm = {
+        .version = REDISMODULE_TYPE_METHOD_VERSION,
+        .rdb_load = TrieRdbLoad,
+        .rdb_save = TrieRdbSave,
+        .aof_rewrite = TrieAofRewrite,
+        .mem_usage = TrieMemUsage,
+        .free = TrieFree,
+        .digest = TrieDigest
+    };
+
+    trie = RedisModule_CreateDataType(ctx,"trie123az",0,&tm);
+    if (trie == NULL) return REDISMODULE_ERR;
+
+    if (RedisModule_CreateCommand(ctx,"trie.insert",
+        TrieInsert_RedisCommand,"write deny-oom",1,1,1) == REDISMODULE_ERR)
+        return REDISMODULE_ERR;
+
+    if (RedisModule_CreateCommand(ctx,"trie.contains",
+        TrieContains_RedisCommand,"readonly",1,1,1) == REDISMODULE_ERR)
+        return REDISMODULE_ERR;
+
+    return REDISMODULE_OK;
+}
