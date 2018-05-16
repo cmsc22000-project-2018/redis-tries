@@ -17,6 +17,14 @@ struct trie_t {
         // parent trie_t for traversing backwards
 };
 
+/* Used for related_strings function below */
+typedef struct relatives_t relatives_t;
+struct relatives_t {
+    char* str;
+    int dis;
+    relatives_t* next;
+}
+
 /*
     Creates and allocates memory for new trie_t.
     
@@ -106,6 +114,20 @@ int delete_string(char *word, trie_t *t);
  *  - -1 if word is found but end node's is_word is 0.
  */
 int trie_search(char *word, trie_t *t);
+
+/* Searches for words that are a certain "distance" (determined by given function) away from given string 
+ *
+ * Parameters:
+ *  - int max
+ *  - distance function that takes in two strings and returns the "distance" between them
+ *  - curr: string that all strings in the trie are being compared to
+ *  - trie that's being searched for strings with distance at most max
+ *
+ * Returns:
+ *  - Allocated relatives struct with strings and corresponding distances that fit this criteria
+ */
+relatives_t* related_strings(int max, int (*distance)(char* str1, char* str2), 
+                           char* curr, trie_t *t);
 
 #endif
 
