@@ -108,5 +108,19 @@ Details: Returns 1 if word is found. Returns 0 if word is not found at all and -
 */
 int trie_search(char *word, trie_t *t);
 
+/*
+    Count the number of different possible endings of a given prefix in a trie
+    
+    Parameters:
+     - pre: a string of the prefix converned
+     - t: a trie pointer
+
+    Returns:
+     - an integer of the number of endings if the prefix exists in the trie
+     - 0 if the prefix does not exist in the trie
+*/
+int count_ending(char *pre, trie_t *t);
+
+
 #endif
 
