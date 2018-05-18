@@ -107,3 +107,33 @@ int trie_search(char* word, trie_t *t)
 
     return -1;
 }
+
+relatives_t *related_strings(int max, int (*distance)(char* str1, char* str2),
+                             char* curr, trie_t *t)
+{
+    char* str;
+    int dis;
+    relatives_t *res, *tmp;
+
+    // Construct string from trie
+
+    dis = distance(str, curr);
+    
+    if (dis <= max) {
+        tmp = malloc(sizeof(relatives_t));
+        if (tmp==NULL) {
+            fprintf(stderr, "related_strings: malloc failed\n");
+            exit(0);
+        }
+        
+        tmp->str = strdup(str);
+        tmp->dis = dis;
+        tmp->next = res;
+        res = tmp;
+    }
+
+    return res;
+}
+
+
+
