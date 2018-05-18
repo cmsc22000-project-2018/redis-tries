@@ -92,7 +92,7 @@ int insert_string(char *word, trie_t *t)
 int is_leaf(trie_t *t)
 {
     int i;
-    for(i=0 ; i<ALPHABET_SIZE ; i++)
+    for(i=0 ; i<256 ; i++)
         if(t->children[i]!=NULL) return 0;
     return 1;
 }
@@ -111,11 +111,14 @@ int pointer_search(char *word, trie_t *t, trie_t *searched)
     searched = NULL;
     
     for(i=0 ; i<len ; i++) {
-        for(j=0 ; j<ALPHABET_SIZE ; j++) {
+        for(j=0 ; j<256 ; j++) {
             check = traverse;
             if(word[i]==traverse->children[j]->current)
                 traverse = traverse->children[j];
-            if(check==traverse) return 0;
+            if(check==traverse) {
+                searched = t;
+                return 0;
+            }
         }
         if(i==(len-1)&&traverse->is_word==1) {
         /*if(i==(len-1)&&traverse->is_word==true)*/
@@ -124,9 +127,11 @@ int pointer_search(char *word, trie_t *t, trie_t *searched)
         }
         if(i==(len-1)&&traverse->is_word==1) {
         /*if(i==(len-1)&&traverse->is_word==true)*/
+            searched = t;
             return -1;
         }
     }
+    return 0;
 }
     
 /* Deletes word in trie. Returns 1 if word is deleted and 0 if not. If word is
@@ -139,7 +144,7 @@ int pointer_search(char *word, trie_t *t, trie_t *searched)
 int delete_string(char *word, trie_t *t)
 /* bool delete_string(char *word, trie_t *) */
 {
-    trie_t *searched, *traverse_up, *temp;
+    trie_t *searched = NULL, *traverse_up, *temp;
     int present = pointer_search(word,t,searched);
     if(present <= 0) return 0; /*return false;*/
     
@@ -149,7 +154,7 @@ int delete_string(char *word, trie_t *t)
     if(is_leaf(searched)==1) {
         int len = strlen(word);
         traverse_up->is_word = 0;
-        for(i=0 ; i<strlen ; i++) {
+        for(int i=0 ; i<len ; i++) {
             if(traverse_up->is_word==0) {
                 temp = traverse_up;
                 traverse_up = traverse_up->parent;
