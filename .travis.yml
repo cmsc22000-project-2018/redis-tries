@@ -1,0 +1,15 @@
+language: c
+
+install: true
+
+branches:
+  only:
+    - master
+    - dev
+
+jobs:
+  include:
+    - stage: build
+      script: echo Travis # dummy command until we have make files
+    - stage: test
+      script: echo CI # dummy command until we have make files
