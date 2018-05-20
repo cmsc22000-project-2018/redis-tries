@@ -100,8 +100,8 @@ Test(trie, empty_search)
     cr_assert_eq(found, 0, "trie_search() does not return 0 with an empty trie");
 }
 
-/* Checks a  trie with only one word */
-Test(trie, singleton_search)
+/* Checks a trie with only one word to see if trie_search returns expected for given str*/
+void singleton_search(char* str, int expected)
 {
     trie_t *t;
     int inserted, found;
@@ -112,20 +112,39 @@ Test(trie, singleton_search)
     inserted = insert_string("CS220", t);
     cr_assert_eq(inserted, 0, "insert_string() failed");
 
-    found = trie_search("CS220", t); // Checks if inserted word can be found 
-    cr_assert_eq(found, 1, "trie_search() returns %d instead of 1 with inserted word", found );
-
-    found = trie_search("CS", t); // Checks prefix of inserted word
-    cr_assert_eq(found, -1, "trie_search() returns %d instead of -1 "
-            "with prefix of inserted word", found);
-
-    found = trie_search("CS22000", t); // Checks extension of inserted word
-    cr_assert_eq(found, 0, "trie_search() returns %d instead of 0"
-           "  with extension of inserted word", found);
-
-    found = trie_search("Computer", t); // Checks different word
-    cr_assert_eq(found, 0, "trie_search() returns %d instead of 0"
-          "  with word different from inserted word", found);
+    found = trie_search(str, t); // Checks if str can be found 
+    cr_assert_eq(found, expected, "trie_search() returns %s instead of %s with inserted word",
+            (found==0)? "NOT_IN_TRIE" : ((found==1)? "IN_TRIE" : "PARTIAL_IN_TRIE"),
+            (expected==0)? "NOT_IN_TRIE" : ((expected==1)? "IN_TRIE" : "PARTIAL_IN_TRIE"));
 }
+
+
+
+/* Checks for the inserted word in a singleton trie */
+Test(trie, singleton_search_inserted_word)
+{
+    singleton_search("CS220", IN_TRIE);
+}
+
+/* Checks for the prefix of the inserted word in a singleton trie */
+Test(trie, singleton_search_prefix)
+{
+    singleton_search("CS", PARTIAL_IN_TRIE);
+}
+
+
+/* Checks for the extension of the inserted word in a singleton trie */
+Test(trie, singleton_search_extension)
+{
+    singleton_search("CS22000", NOT_IN_TRIE);
+}
+
+/* Checks for a non-inserted word in a singleton trie */
+Test(trie, singleton_search_not_inserted)
+{
+    singleton_search("Computer", NOT_IN_TRIE);
+}
+
+
 
 
