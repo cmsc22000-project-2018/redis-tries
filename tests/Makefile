@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -fPIC -Wall -Wextra -O2 -g -I../include/
+CFLAGS = -std=c99 -fPIC -Wall -Wextra -O2 -g -I../include/
 LDFLAGS = -L../ -Wl,-rpath,.
 RM = rm -f
 BIN = test-libtrie

@@ -3,6 +3,7 @@
 */
 
 #include <stdlib.h>
+#include <string.h>
 #include <assert.h>
 #include <math.h>
 #include "trie.h"
@@ -32,7 +33,6 @@ trie_t *new_trie(char current)
     return t;
 }
 
-/* See trie.h */
 int trie_free(trie_t *t)
 {
     assert( t != NULL);
@@ -46,8 +46,6 @@ int trie_free(trie_t *t)
     return 0;
 }
 
-
-/* See trie.h */
 int add_node(char current, trie_t *t)
 {
     assert( t != NULL);
@@ -61,7 +59,6 @@ int add_node(char current, trie_t *t)
 
 }
 
-/* See trie.h */
 int insert_string(char *word, trie_t *t)
 {
     assert(t!=NULL);
@@ -85,6 +82,44 @@ int insert_string(char *word, trie_t *t)
     }
 }
 
+
+trie_t *trie_search_end(char* word, trie_t *t)
+{
+
+    int len;
+    trie_t* curr;
+    trie_t** next;
+
+    len = strlen(word);
+    curr = t;
+    next = t->children;
+
+    for (int i=0; i<len; i++) {
+        int j = (int) word[i];
+        curr = next[j];
+
+        if (curr == NULL)
+            return NULL;
+
+        next = next[j]->children;
+    }
+
+    return curr;
+}
+
+
+int trie_search(char* word, trie_t *t)
+{
+    trie_t *end = trie_search_end(word,t);
+
+    if (end == NULL)
+        return NOT_IN_TRIE;
+
+    if (end->is_word == 1) 
+        return IN_TRIE;
+
+    return PARTIAL_IN_TRIE;
+}
 
 int count_completion_recursive( trie_t *t){
 
@@ -123,3 +158,6 @@ int count_completion(char *pre, trie_t *t){
 	return count_completion_recursive(end);
 	
 }
+
+
+
