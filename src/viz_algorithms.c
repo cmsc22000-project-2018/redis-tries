@@ -7,6 +7,7 @@ Made by Marco Harnam Kaisth and Hongji Liu */
 
 #include <string.h>
 #include <stdio.h>
+#include "trie.h"
 
 // Written by Marco Harnam Kaisth
 
