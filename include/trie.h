@@ -119,7 +119,7 @@ int trie_search(char *word, trie_t *t);
      - an integer of the number of endings if the prefix exists in the trie
      - 0 if the prefix does not exist in the trie
 */
-int count_ending(char *pre, trie_t *t);
+int count_completion(char *pre, trie_t *t);
 
 
 #endif
