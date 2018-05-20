@@ -230,11 +230,27 @@ Test(count_completion, prefix_not_in_trie)
     search_completion("anthropologist",0);
 }
 
-Test(count_completion, prefix_in_trie)
+Test(count_completion, prefix_in_trie_1)
 {
     search_completion("a",8);
+}
+
+Test(count_completion, prefix_in_trie_2)
+{
     search_completion("an",8);
-    search_completion("ant",8);
+}
+
+Test(count_completion, prefix_in_trie_3)
+{
+    search_completion("ant",7);
+}
+
+Test(count_completion, prefix_in_trie_4)
+{
     search_completion("anti",3);
+}
+
+Test(count_completion, prefix_in_trie_5)
+{
     search_completion("antiq",2);
 }
