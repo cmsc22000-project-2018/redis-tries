@@ -33,7 +33,7 @@ int lviz(trie_t* t, char path[], int level, char** return_arr, int* return_index
 	{
 		path[level] = '\0';
 		//Set the current index of the string to terminal char
-		return_arr[return_index] = strdup(path);
+		return_arr[*return_index] = strdup(path);
 		//Put the constructed string into the array of strings to be printed
 		*return_index++; 
 		//Increment the current index of said array
@@ -77,7 +77,7 @@ int wviz(trie_t* t, char path[], int level, char** return_arr, int* return_index
 	{
 		path[level] = '\0';
 		// Set current char of string to terminating char
-		return_arr[return_index] = strdup(path);
+		return_arr[*return_index] = strdup(path);
 		// Place string in constructed array to be printed
 		*return_index++;
 		// Increment index in said array
@@ -139,11 +139,11 @@ int eviz(trie_t* t, char* str, int level, char** return_arr, int* return_index) 
 
         if (t->children[i]) {
 
-            str[level] = t->children[i].current;
+            str[level] = t->children[i]->current;
 
             return_arr[*return_index] = strdup(str + '\0');
 
-            eviz(&t->children[i], str, ++level, return_arr, ++return_index);
+            eviz(t->children[i], str, ++level, return_arr, ++return_index);
         }
 
     }
@@ -171,8 +171,8 @@ int sviz(trie_t* t, char* input, char* str, int level, char** return_arr, int* r
     /*
      * Gets to the node where the input ends
      */
-    for (int j = 0; j < input_size; ++j) {
-        subtrie = &subtrie->children[input[j]];
+    for (size_t j = 0; j < input_size; ++j) {
+        subtrie = subtrie->children[input[j]];
     }
 
     /*
@@ -187,7 +187,7 @@ int sviz(trie_t* t, char* input, char* str, int level, char** return_arr, int* r
      * in eviz
      */
     for (int i = 0; i < *return_index; ++i) {
-        strncat(input, return_arr[i]);
+        strncat(input, return_arr[i],input_size);
         puts(return_arr[i]);
     }
 
