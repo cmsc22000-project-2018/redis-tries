@@ -46,9 +46,9 @@ Test(trie, add_node_new)
 
 Test(trie, insert_string)
 {
-    char* s1 = strdup("an");
-    char* s2 = strdup("anti");
-    char* s3 = strdup("ants");
+    char* s1 = "an";
+    char* s2 = "anti";
+    char* s3 = "ants";
     trie_t *t = new_trie('\0');
 
     int r1 = insert_string(s1,t);
@@ -200,4 +200,41 @@ Test(trie, twenty_search_not_inserted)
 
     for (int i=0; i<8; i++) 
         twenty_search(words[i], NOT_IN_TRIE);
+}
+
+
+void search_completion (char* pre, int expected){
+
+    trie_t *t;
+    int inserted, number;
+    char* words[8] = {"an","ant","anti", "antique", "antiquity", "antelope", "antman","anthropology"}; 
+    t = new_trie('\0');
+    cr_assert_not_null(t, "new_trie() failed");
+
+    for (int i=0; i<8; i++) {
+        inserted = insert_string(words[i], t);
+        cr_assert_eq(inserted, 0, "insert_string() failed for %dth string %s", i, words[i]);
+    }
+
+    number = count_completion(pre, t); // Checks if str can be found 
+    cr_assert_eq(number, expected, "count_completion() for %s returns %d completions instead of %s.\n",
+            pre,
+            number,
+            expected);
+}
+
+
+Test(count_completion, prefix_not_in_trie)
+{
+    search_completion("banana",0);
+    search_completion("anthropologist",0);
+}
+
+Test(count_completion, prefix_in_trie)
+{
+    search_completion("a",8);
+    search_completion("an",8);
+    search_completion("ant",8);
+    search_completion("anti",3);
+    search_completion("antiq",2);
 }
