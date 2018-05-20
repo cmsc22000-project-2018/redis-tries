@@ -93,12 +93,11 @@ int count_completion_recursive( trie_t *t){
 	if (t == NULL)
 		return acc;
 
-	if (t->is_word = 1)
+	if (t->is_word == 1)
 		acc++;
 
-	for (i=0;i<256;i++){
-		acc += count_completion_recursive(t->children[i])
-	}
+	for (int i=0;i<256;i++)
+		acc += count_completion_recursive(t->children[i]);
 
 	return acc;
 }
@@ -121,6 +120,6 @@ int count_completion(char *pre, trie_t *t){
 	if (end == NULL)
 		return 0;
 
-	return count_completion_recursive(end,0);
+	return count_completion_recursive(end);
 	
 }
