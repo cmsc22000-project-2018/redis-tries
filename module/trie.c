@@ -228,8 +228,10 @@ int TrieContains_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int
     RedisModuleKey *key = RedisModule_OpenKey(ctx,argv[1],
         REDISMODULE_READ|REDISMODULE_WRITE);
     int type = RedisModule_KeyType(key);
-    if (type != REDISMODULE_KEYTYPE_EMPTY &&
-        RedisModule_ModuleTypeGetType(key) != trie)
+    if (type == REDISMODULE_KEYTYPE_EMPTY) {
+    	return RedisModule_ReplyWithError(ctx,"ERR invalid key: not an existing trie");
+    }
+    else if (RedisModule_ModuleTypeGetType(key) != trie)
     {
         return RedisModule_ReplyWithError(ctx,REDISMODULE_ERRORMSG_WRONGTYPE);
     }
@@ -241,13 +243,7 @@ int TrieContains_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int
     } 
 
     trie *t;
-    /* Create an empty value object if the key is currently empty. */
-    if (type == REDISMODULE_KEYTYPE_EMPTY) {
-        t = new_trie('\0');
-        RedisModule_ModuleTypeSetValue(key,trie,t);
-    } else {
-        t = RedisModule_ModuleTypeGetValue(key);
-    }
+    t = RedisModule_ModuleTypeGetValue(key);
 
     /* Check for the string. */
     int c = trie_search(temp, t);
