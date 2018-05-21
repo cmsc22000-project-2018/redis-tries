@@ -2,30 +2,29 @@
  * The data structure is based on the idea of a trie (aka a prefix 
  * tree) and largely works the same way.
  */
+#define IN_TRIE 1
+#define NOT_IN_TRIE 0 
+#define PARTIAL_IN_TRIE (-1)
 
 #include "../redismodule.h"
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
 #include <math.h>
-#include "utils.h"
-#include "stringbuilder.h"
 
 
 static RedisModuleType *trie;
 
 /* ========================== Internal data structure (Bare bones functions)  ======================= */
 
-typedef struct trie trie;
-
 struct trie {
     char current; 
         // The first trie_t will be '/0' for any Trie.
-    trie **children;
+    struct trie **children;
          // ALPHABET_SIZE is 256 for all possible characters.
     int is_word; 
         // if is_word is 1, indicates that this is the end of a word. Otherwise 0.
-    trie *parent;
+    struct trie *parent;
         // parent trie for traversing backwards
 };
 
@@ -39,21 +38,21 @@ struct trie {
      - A pointer to the trie, or REDISMODULE_ERR if a pointer 
        cannot be allocated
 */
-trie *new_trie (char current)
+struct trie *new_trie (char current)
 {
-    trie *t = RedisModule_Calloc(1,sizeof(trie));
+    struct trie *t = RedisModule_Calloc(1,sizeof(*t));
     
     if (t == NULL){
-        error("Could not allocate memory for trie");
-        return REDISMODULE_ERR;
+        fprintf(stderr, "Could not allocate memory for trie");
+        return NULL;
     } 
 
     t->current = current;
 
-    t->children = RedisModule_Calloc(256,sizeof(trie*));
+    t->children = RedisModule_Calloc(256,sizeof(t));
     if (t->children == NULL){
-        error("Could not allocate memory for t->children");
-        return REDISMODULE_ERR;
+        fprintf(stderr, "Could not allocate memory for t->children");
+        return NULL;
     }
 
     t->is_word = 0;
@@ -70,7 +69,7 @@ trie *new_trie (char current)
     Returns:
      - Always returns 0
 */
-int trie_free(trie *t)
+int trie_free(struct trie *t)
 {
     assert(t != NULL);
 
@@ -95,7 +94,7 @@ int trie_free(trie *t)
      - Set t->children[current] to be current
      - is_word for new node set to 0.
 */
-int add_node(char current, trie *t)
+int add_node(char current, struct trie *t)
 {
     assert(t != NULL);
 
@@ -123,7 +122,7 @@ int add_node(char current, trie *t)
      - Then move on to the next character in string
      - Set the is_word of the last node to 1
 */
-int insert_string(char *word, trie *t)
+int insert_string(char *word, struct trie *t)
 {
     assert(t!=NULL);
 
@@ -137,7 +136,7 @@ int insert_string(char *word, trie *t)
 
         int rc = add_node(curr, t);
         if (rc != 0){
-            error("Fail to add_node");
+            fprintf(stderr, "Fail to add_node");
             return 1;
         }
         
@@ -153,11 +152,11 @@ int insert_string(char *word, trie *t)
  *  - 0 if word is not found at all.
  *  - -1 if word is found but end node's is_word is 0.
  */
- int trie_search(char* word, trie *t)
+int trie_search(char* word, trie_t *t)
 {
     int len;
-    trie* curr;
-    trie** next;
+    trie_t* curr;
+    trie_t** next;
 
     len = strlen(word);
     curr = t;
@@ -168,18 +167,16 @@ int insert_string(char *word, trie *t)
         curr = next[j];
 
         if (curr == NULL)
-            return 0;
+            return NOT_IN_TRIE;
 
         next = next[j]->children;
     }
 
     if (curr->is_word == 1) 
-        return 1;
+        return IN_TRIE;
 
-    return -1;
+    return PARTIAL_IN_TRIE;
 }
-
-// Still need delete_string
 
 /* ========================= "trie" type commands (Redis wrapper functions) ======================= */
 
@@ -197,14 +194,14 @@ int TrieInsert_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int a
     {
         return RedisModule_ReplyWithError(ctx,REDISMODULE_ERRORMSG_WRONGTYPE);
     }
-    size_t *dummy; // Do we need to free this?
-    char *temp = RedisModule_StringPtrLen(argv[2], dummy); // Same question here?
+    size_t dummy;
+    char *temp = RedisModule_StringPtrLen(argv[2], &dummy);
     char *empty = "";
     if (temp == NULL || strcmp(temp, empty) == 0) {
     	return RedisModule_ReplyWithError(ctx,"ERR invalid value: must be a string");
     } 
 
-    trie *t;
+    struct trie *t;
     /* Create an empty value object if the key is currently empty. */
     if (type == REDISMODULE_KEYTYPE_EMPTY) {
     	t = new_trie('\0');
@@ -237,33 +234,33 @@ int TrieContains_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int
     {
         return RedisModule_ReplyWithError(ctx,REDISMODULE_ERRORMSG_WRONGTYPE);
     }
-    size_t *dummy; // Do we need to free this?
-    char *temp = RedisModule_StringPtrLen(argv[2], dummy); // Same question here?
+    size_t dummy;
+    char *temp = RedisModule_StringPtrLen(argv[2], &dummy);
     char *empty = "";
     if (temp == NULL || strcmp(temp, empty) == 0) {
         return RedisModule_ReplyWithError(ctx,"ERR invalid value: must be a string");
     } 
 
-    trie *t;
+    struct trie *t;
     t = RedisModule_ModuleTypeGetValue(key);
 
     /* Check for the string. */
-    int c = trie_search(temp, t);
+    int c = 1;
     
     if (c == 1) {
-        RedisModule_ReplyWithSimpleString(ctx, "The trie contains %s", temp);
+        // char *message = strcat("The trie contains ", temp);
+        RedisModule_ReplyWithSimpleString(ctx, "debug");
     } else if (c == 0) {
-        RedisModule_ReplyWithSimpleString(ctx, "The trie does not contain %s", temp);
+        char *message = strcat("The trie does not contain", temp);
+        RedisModule_ReplyWithSimpleString(ctx, message);
     } else {
-        RedisModule_ReplyWithSimpleString(ctx, "The trie contains the prefix %s, but not the word", temp);
+        char *message = strcat("The contains the prefix ", temp);
+        message = strcat(message, ", but not the word");
+        RedisModule_ReplyWithSimpleString(ctx, message);
     }       
     RedisModule_ReplicateVerbatim(ctx);
     return REDISMODULE_OK;
 }
-
-// delete function
-
-// function to show available words in trie
 
 /* ========================== "trie" type methods (Redis data saving and entry functions) ======================= */
 
@@ -339,12 +336,12 @@ int RedisModule_OnLoad(RedisModuleCtx *ctx, RedisModuleString **argv, int argc) 
 
     RedisModuleTypeMethods tm = {
         .version = REDISMODULE_TYPE_METHOD_VERSION,
-        .rdb_load = TrieRdbLoad,
-        .rdb_save = TrieRdbSave,
-        .aof_rewrite = TrieAofRewrite,
-        .mem_usage = TrieMemUsage,
-        .free = TrieFree,
-        .digest = TrieDigest
+        .rdb_load = NULL,
+        .rdb_save = NULL,
+        .aof_rewrite = NULL,
+        .mem_usage = NULL,
+        .free = NULL,
+        .digest = NULL
     };
 
     trie = RedisModule_CreateDataType(ctx,"trie123az",0,&tm);
