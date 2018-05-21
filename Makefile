@@ -1,6 +1,6 @@
 CC = gcc
 AR = ar 
-CFLAGS = -fPIC -Wall -Wextra -O2 -g -I./include/
+CFLAGS = -std=c99 -fPIC -Wall -Wextra -O2 -g -I./include/
 LDFLAGS = -shared
 RM = rm -f
 DYNAMIC_LIB = libtrie.so
