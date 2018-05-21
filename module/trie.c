@@ -152,11 +152,11 @@ int insert_string(char *word, struct trie *t)
  *  - 0 if word is not found at all.
  *  - -1 if word is found but end node's is_word is 0.
  */
-int trie_search(char* word, trie_t *t)
+int trie_search(char* word, struct trie *t)
 {
     int len;
-    trie_t* curr;
-    trie_t** next;
+    struct trie* curr;
+    struct trie** next;
 
     len = strlen(word);
     curr = t;
@@ -242,7 +242,7 @@ int TrieContains_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int
     } 
 
     struct trie *t;
-    t = RedisModule_ModuleTypeGetValue(key);
+    // t = RedisModule_ModuleTypeGetValue(key);
 
     /* Check for the string. */
     int c = trie_search(temp, t);
