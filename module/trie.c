@@ -10,6 +10,7 @@
 #include <math.h>
 #include "utils.h"
 
+
 static RedisModuleType *trie;
 
 /* ========================== Internal data structure (Bare bones functions)  ======================= */
@@ -267,6 +268,23 @@ int TrieContains_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int
 
 /* This function must be present on each Redis module. It is used in order to
  * register the commands into the Redis server. */
+/*
+
+void TrieRDBSave(RedisModuleIO *io, void *ptr) {
+    trie *tr = ptr;
+    RedisModule_SaveUnsigned(io,da->count);
+    for (int i=0; i<256; i++ ){
+        if (t->children[i] !=NULL)
+            trie_free(t->children[i]);
+    }
+    for (size_t j = 0; j < da->count; j++)
+        RedisModule_SaveDouble(io,da->values[j]);
+}
+
+*/
+
+
+
 int RedisModule_OnLoad(RedisModuleCtx *ctx, RedisModuleString **argv, int argc) {
     REDISMODULE_NOT_USED(argv);
     REDISMODULE_NOT_USED(argc);
