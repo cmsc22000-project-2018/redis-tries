@@ -29,7 +29,6 @@ trie_t *new_trie(char current)
 
     t->is_word = 0;
     t->parent = NULL;
-    t->elements = 0;
     
 
     return t;
