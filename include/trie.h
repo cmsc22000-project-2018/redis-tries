@@ -15,8 +15,6 @@ struct trie_t {
         // if is_word is 1, indicates that this is the end of a word. Otherwise 0.
     trie_t *parent;
         // parent trie_t for traversing backwards
-    int elements;
-        // the amount of elements in the trie (needed for traversal)
 };
 
 /*
