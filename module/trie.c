@@ -9,6 +9,7 @@
 #include <assert.h>
 #include <math.h>
 #include "utils.h"
+#include "stringbuilder.h"
 
 
 static RedisModuleType *trie;
@@ -272,13 +273,57 @@ int TrieContains_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int
 
 void TrieRDBSave(RedisModuleIO *io, void *ptr) {
     trie *tr = ptr;
-    RedisModule_SaveUnsigned(io,da->count);
+    //RedisModule_SaveUnsigned(io,da->count);
     for (int i=0; i<256; i++ ){
         if (t->children[i] !=NULL)
             trie_free(t->children[i]);
     }
     for (size_t j = 0; j < da->count; j++)
         RedisModule_SaveDouble(io,da->values[j]);
+}
+
+
+void TrieType_RdbSave(RedisModuleIO *rdb, void *value) {
+  TrieType_GenericSave(rdb, (Trie *)value, 1);
+}
+
+void TrieType_GenericSave(RedisModuleIO *rdb, Trie *tree, int savePayloads) {
+  //RedisModule_SaveUnsigned(rdb, tree->size);
+  RedisModuleCtx *ctx = RedisModule_GetContextFromIO(rdb);
+  RedisModule_Log(ctx, "notice", "Trie: saving %zd nodes.", tree->size);
+  int count = 0;
+  if (tree->root) {
+    TrieIterator *it = TrieNode_Iterate(tree->root, NULL, NULL, NULL);
+    rune *rstr;
+    t_len len;
+    float score;
+    RSPayload payload = {.data = NULL, .len = 0};
+
+    while (TrieIterator_Next(it, &rstr, &len, &payload, &score, NULL)) {
+      size_t slen = 0;
+      char *s = runesToStr(rstr, len, &slen);
+      RedisModule_SaveStringBuffer(rdb, s, slen + 1);
+      RedisModule_SaveDouble(rdb, (double)score);
+
+      if (savePayloads) {
+        // save an extra space for the null terminator to make the payload null terminated on load
+        if (payload.data != NULL && payload.len > 0) {
+          RedisModule_SaveStringBuffer(rdb, payload.data, payload.len + 1);
+        } else {
+          // If there's no payload - we save an empty string
+          RedisModule_SaveStringBuffer(rdb, "", 1);
+        }
+      }
+      // TODO: Save a marker for empty payload!
+      free(s);
+      count++;
+    }
+    if (count != tree->size) {
+      RedisModule_Log(ctx, "warning", "Trie: saving %zd nodes actually iterated only %zd nodes",
+                      tree->size, count);
+    }
+    TrieIterator_Free(it);
+  }
 }
 
 */
