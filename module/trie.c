@@ -245,11 +245,11 @@ int TrieContains_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int
     t = RedisModule_ModuleTypeGetValue(key);
 
     /* Check for the string. */
-    int c = 1;
+    int c = trie_search(temp, t);
     
     if (c == 1) {
-        // char *message = strcat("The trie contains ", temp);
-        RedisModule_ReplyWithSimpleString(ctx, "debug");
+        char *message = strcat("The trie contains ", temp);
+        RedisModule_ReplyWithSimpleString(ctx, message);
     } else if (c == 0) {
         char *message = strcat("The trie does not contain", temp);
         RedisModule_ReplyWithSimpleString(ctx, message);
