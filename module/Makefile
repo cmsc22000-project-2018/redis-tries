@@ -12,7 +12,7 @@ endif
 
 .SUFFIXES: .c .so .xo .o
 
-all: hellotype.so trie.so
+all: trie.so
 
 .c.xo:
 	$(CC) -I. $(CFLAGS) $(SHOBJ_CFLAGS) -fPIC -c $< -o $@
