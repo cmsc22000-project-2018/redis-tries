@@ -17,12 +17,7 @@ all: trie.so
 .c.xo:
 	$(CC) -I. $(CFLAGS) $(SHOBJ_CFLAGS) -fPIC -c $< -o $@
 
-hellotype.xo: ../redismodule.h
-
 trie.xo: ../redismodule.h
-
-hellotype.so: hellotype.xo
-	$(LD) -o $@ $< $(SHOBJ_LDFLAGS) $(LIBS) -lc
 
 trie.so: trie.xo
 	$(LD) -o $@ $< $(SHOBJ_LDFLAGS) $(LIBS) -lc

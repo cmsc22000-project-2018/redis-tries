@@ -16,6 +16,8 @@ Inside the module directory, type "make all" into the command line to build the 
 
 Print the working directory and either copy it or write it down, appending "trie.so" to the end of the path. So if my name is Dustin and my redis-tries directory is on my Desktop, I should have written down /Users/Dustin/Desktop/redis-tries/module/trie.so
 
+Before you begin running the Redis server, make sure to check the src directory in redis-stable for a file called "dump.rdb" if it exists, make sure to delete it before running the server every time you decide to run the server. This is because we have not implemented the data persistence functions yet and will remove this as soon as we do.
+
 Assuming you have Redis fully installed and functional (instructions here if you haven't: https://github.com/cmsc22000-project-2018/redis-tries/wiki/Design-Document-v1), run the Redis server with "redis-server" in the redis-stable directory.
 
 In a separate window, run the Redis client with "redis-cli".
