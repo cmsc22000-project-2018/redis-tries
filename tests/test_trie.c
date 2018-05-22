@@ -156,6 +156,7 @@ Test(trie,delete_string_not_present)
     cr_assert_eq(rc_l,0,"delete_string removed child trie when string was not in parent");
 }
 
+<<<<<<< HEAD
 Test(trie,delete_string_prefix)
 {
     trie_t *t1, *t2, *t3;
@@ -196,3 +197,122 @@ Test(trie,delete_string_prefixed)
     cr_assert_eq(rc,1,"delete_string failed to remove prefixed string from trie");
     cr_assert_eq(rc_l,1,"delete_string improperly removed prefixed string from trie");
 }
+=======
+}
+
+/* Checks that searching an empty trie returns 0 */
+Test(trie, empty_search)
+{
+    trie_t *t;
+    int found;
+    
+    t = new_trie('\0');
+    cr_assert_not_null(t, "new_trie() failed");
+
+    found = trie_search("b", t);
+
+    cr_assert_eq(found, 0, "trie_search() does not return 0 with an empty trie");
+}
+
+/* Checks a trie with only one word to see if trie_search returns expected for given str*/
+void singleton_search(char* str, int expected)
+{
+    trie_t *t;
+    int inserted, found;
+
+    t = new_trie('\0');
+    cr_assert_not_null(t, "new_trie() failed");
+
+    inserted = insert_string("CS220", t);
+    cr_assert_eq(inserted, 0, "insert_string() failed");
+
+    found = trie_search(str, t); // Checks if str can be found 
+    cr_assert_eq(found, expected, "trie_search() returns %s instead of %s with inserted word",
+            (found==0)? "NOT_IN_TRIE" : ((found==1)? "IN_TRIE" : "PARTIAL_IN_TRIE"),
+            (expected==0)? "NOT_IN_TRIE" : ((expected==1)? "IN_TRIE" : "PARTIAL_IN_TRIE"));
+}
+
+
+
+/* Checks for the inserted word in a singleton trie */
+Test(trie, singleton_search_inserted)
+{
+    singleton_search("CS220", IN_TRIE);
+}
+
+/* Checks for the prefix of the inserted word in a singleton trie */
+Test(trie, singleton_search_prefix)
+{
+    singleton_search("CS", PARTIAL_IN_TRIE);
+}
+
+
+/* Checks for the extension of the inserted word in a singleton trie */
+Test(trie, singleton_search_extension)
+{
+    singleton_search("CS22000", NOT_IN_TRIE);
+}
+
+/* Checks for a non-inserted word in a singleton trie */
+Test(trie, singleton_search_not_inserted)
+{
+    singleton_search("Computer", NOT_IN_TRIE);
+}
+
+/* Checks a trie with 21 words to see if trie_search returns expected for given str*/
+void twenty_search(char* str, int expected)
+{
+    trie_t *t;
+    int inserted, found;
+    char* words[21] = {"Ever", "loved", "someone", "so", "much,", "you", "would", "do", "anything", "for", "them?", "Yeah,", "well,", "make", "that", "yourself", "and", "whatever", "the", "hell", "want."}; // quote by Harvey Specter 
+    t = new_trie('\0');
+    cr_assert_not_null(t, "new_trie() failed");
+
+    for (int i=0; i<21; i++) {
+        inserted = insert_string(words[i], t);
+        cr_assert_eq(inserted, 0, "insert_string() failed for %dth string %s", i, words[i]);
+    }
+
+    found = trie_search(str, t); // Checks if str can be found 
+    cr_assert_eq(found, expected, "trie_search() for %s returns %s instead of %s with inserted word",
+            str,
+            (found==0)? "NOT_IN_TRIE" : ((found==1)? "IN_TRIE" : "PARTIAL_IN_TRIE"),
+            (expected==0)? "NOT_IN_TRIE" : ((expected==1)? "IN_TRIE" : "PARTIAL_IN_TRIE"));
+}
+
+/* Checks that inserted words are in 21-word trie */
+Test(trie, twenty_search_inserted)
+{
+    char* words[21] = {"Ever", "loved", "someone", "so", "much,", "you", "would", "do", "anything", "for", "them?", "Yeah,", "well,", "make", "that", "yourself", "and", "whatever", "the", "hell", "want."}; // quote by Harvey Specter 
+
+    for (int i=0; i<21; i++) 
+        twenty_search(words[i], IN_TRIE);
+}
+
+/* Checks that prefixes of inserted words are partially in 21-word trie */
+Test(trie, twenty_search_prefix)
+{
+    char* words[21] = {"Eve", "lov", "som", "s", "much", "yo", "woul", "d", "any", "fo", "th", "Yeah", "well", "mak", "tha", "yoursel", "a", "whateve", "th", "hel", "want"}; 
+
+    for (int i=0; i<21; i++) 
+        twenty_search(words[i], PARTIAL_IN_TRIE);
+}
+
+/* Checks that extensions of inserted words are not in 21-word trie */
+Test(trie, twenty_search_extension)
+{
+    char* words[21] = {"Every", "loved!", "someones", "sos", "much,?", "you're", "would've", "done", "anything0", "fore", "them?!", "Yeah,pers", "well,p", "maker", "that'll", "yourselfes", "andar", "whatevers", "there", "helluva", "want.ing"}; 
+
+    for (int i=0; i<21; i++) 
+        twenty_search(words[i], NOT_IN_TRIE);
+}
+
+/* Checks that not inserted words are not in 21-word trie */
+Test(trie, twenty_search_not_inserted)
+{
+    char* words[8] = {"Writing", "tests", "0", "1", "infinity", "law", "Harvey", "Specter"}; 
+
+    for (int i=0; i<8; i++) 
+        twenty_search(words[i], NOT_IN_TRIE);
+}
+>>>>>>> 81f16ade2eca72ae1ee3eae9719fb7e64a27d2e0

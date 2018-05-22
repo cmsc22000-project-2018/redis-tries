@@ -1,10 +1,11 @@
-/*
-    A trie data structure
-*/
+/* A trie data structure */
 
 #ifndef INCLUDE_TRIE_H_
 #define INCLUDE_TRIE_H_
 
+#define IN_TRIE 1
+#define NOT_IN_TRIE 0 
+#define PARTIAL_IN_TRIE (-1)
 
 typedef struct trie_t trie_t;
 struct trie_t {
@@ -32,7 +33,6 @@ trie_t *new_trie (char current);
 
 /*
     Free an entire trie.
-
     Parameters:
      - t: A trie pointer
     
@@ -44,14 +44,12 @@ int trie_free(trie_t *t);
 
 /*
     Creates new node in trie_t.
-
     Parameters:
      - current: A char indicating the character of the node being added
      - t: A pointer to the trie where the node is to be added
     
     Returns:
      - 0 on success, 1 if an error occurs.
-
     Details: 
      - Set t->children[current] to be current
      - is_word for new node set to 0.
@@ -60,7 +58,6 @@ int add_node(char current, trie_t *t);
 
 /*
     Inserts word into trie.
-
     Parameters:
      - word: An char array to be inserted into the given trie
      - t: A pointer to the given trie
@@ -79,14 +76,11 @@ int insert_string(char *word, trie_t *t);
 
 /*
     Delete word in trie.
-
     Parameters:
      - word: A char array to be deleted from the given trie
      - t: A pointer to the given trie
-
     Returns:
      - 1 if deleted
-
     Details: 
      - If word is not in trie
         trie is not modified.            
@@ -99,13 +93,13 @@ int insert_string(char *word, trie_t *t);
 */
 int delete_string(char *word, trie_t *t);
 
-/*
-    Search for a word in a trie.
-
-Details: Returns 1 if word is found. Returns 0 if word is not found at all and -1 if word is found but end node's is_word is 0.
-
-
-*/
+/* Searches for word in a trie t. 
+ *
+ * Returns: 
+ *  - IN_TRIE if word is found. 
+ *  - NOT_IN_TRIE  if word is not found at all.
+ *  - PARTIAL_IN_TRIE if word is found but end node's is_word is 0.
+ */
 int trie_search(char *word, trie_t *t);
 
 #endif
