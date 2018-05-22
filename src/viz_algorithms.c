@@ -9,13 +9,6 @@ Made by Marco Harnam Kaisth and Hongji Liu */
 #include <stdio.h>
 #include "trie.h"
 
-// Written by Marco Harnam Kaisth
-
-// Leaf visualization
-// Based on https://www.geeksforgeeks.org/trie-display-content/
-// Takes a trie t, an empty string path to fill as it goes down the trie
-// An int level indicating the current level of a trie
-// A pointer to the array of strings returned, and the current index of that array
 int lviz(trie_t* t, char path[], int level, char** return_arr, int* return_index)
 {
 	if (return_arr == NULL) {
@@ -55,11 +48,6 @@ int lviz(trie_t* t, char path[], int level, char** return_arr, int* return_index
 	return 1;
 }
 
-// Word visualization
-// Based on https://www.geeksforgeeks.org/trie-display-content/
-// Takes a trie t, an empty string path to fill as it goes doewn the trie
-// An int level indicating the current level of a trie
-// A pointer to the array of strings returned, and the current index of that array
 int wviz(trie_t* t, char path[], int level, char** return_arr, int* return_index)
 {
 	if (return_arr == NULL) {
@@ -100,9 +88,6 @@ int wviz(trie_t* t, char path[], int level, char** return_arr, int* return_index
 	// Return constructed array of strings
 }
 
-// Written by Hongji Liu
-
-//Visualizes every path in trie t
 int eviz(trie_t* t, char* str, int level, char** return_arr, int* return_index) {
 
     if (return_arr == NULL) {
@@ -151,7 +136,6 @@ int eviz(trie_t* t, char* str, int level, char** return_arr, int* return_index) 
     return 1;
 }
 
-// Visualizes a given subtree of trie t, given by char* input
 int sviz(trie_t* t, char* input, char* str, int level, char** return_arr, int* return_index) {
 
     if (return_arr == NULL) {
