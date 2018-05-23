@@ -43,7 +43,7 @@ struct trie *new_trie (char current)
     struct trie *t = RedisModule_Calloc(1,sizeof(*t));
     
     if (t == NULL){
-        fprintf(stderr, "Could not allocate memory for trie");
+        fprintf(stderr, "Could not allocate memory for trie\n");
         return NULL;
     } 
 
@@ -51,13 +51,12 @@ struct trie *new_trie (char current)
 
     t->children = RedisModule_Calloc(256,sizeof(t));
     if (t->children == NULL){
-        fprintf(stderr, "Could not allocate memory for t->children");
+        fprintf(stderr, "Could not allocate memory for t->children\n");
         return NULL;
     }
 
     t->is_word = 0;
     t->parent = NULL;
-
     return t;
 }
 
@@ -71,14 +70,15 @@ struct trie *new_trie (char current)
 */
 int trie_free(struct trie *t)
 {
-    assert(t != NULL);
+    if (t != NULL) {
 
-    for (int i=0; i<256; i++ ){
-        if (t->children[i] !=NULL)
-            trie_free(t->children[i]);
+        for (int i=0; i<256; i++ ){
+            if (t->children[i] !=NULL)
+                trie_free(t->children[i]);
+        }
+
+        RedisModule_Free(t);
     }
-
-    RedisModule_Free(t);
     return 0;
 }
 
@@ -102,7 +102,6 @@ int add_node(char current, struct trie *t)
 
     if (t->children[c] == NULL)
         t->children[c] = new_trie(current);
-
     return 0;  
 }
 
@@ -124,22 +123,18 @@ int add_node(char current, struct trie *t)
 */
 int insert_string(char *word, struct trie *t)
 {
-    assert(t!=NULL);
+    assert(t != NULL);
 
     if (*word == '\0'){
         t->is_word=1;
         return 0;
-
     } else {
-
         char curr = *word;
-
         int rc = add_node(curr, t);
         if (rc != 0){
             fprintf(stderr, "Fail to add_node");
             return 1;
         }
-        
         word++;
         return insert_string(word, t->children[(unsigned)curr]);
     }
@@ -248,7 +243,7 @@ int TrieContains_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int
     } else if (c == 0) {
         RedisModule_ReplyWithSimpleString(ctx, "The trie does not contain the word.");
     } else {
-        RedisModule_ReplyWithSimpleString(ctx, "The trie contains the prefix but not the word.");
+        RedisModule_ReplyWithSimpleString(ctx, "The trie contains it as a prefix but not as a word.");  
     }       
     RedisModule_ReplicateVerbatim(ctx);
     return REDISMODULE_OK;
