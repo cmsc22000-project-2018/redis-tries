@@ -29,6 +29,7 @@ trie_t *new_trie(char current)
 
     t->is_word = 0;
     t->parent = NULL;
+    
 
     return t;
 }
@@ -54,6 +55,7 @@ int add_node(char current, trie_t *t)
 
     if (t->children[c] == NULL)
         t->children[c] = new_trie(current);
+    
 
     return 0;  
 
