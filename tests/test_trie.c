@@ -8,7 +8,7 @@ Test(trie, new)
 {
     trie_t *t;
 
-    t = new_trie('c');
+    t = trie_new('c');
 
     cr_assert_not_null(t, "new_trie() failed to allocate memory");
     cr_assert_eq(t->current, 'c', "new_trie() failed to set current");
@@ -16,11 +16,11 @@ Test(trie, new)
 }
 
 
-Test(trie, add_node_exists)
+Test(trie, trie_add_node_exists)
 {
     char n = 'n';
-    trie_t *t = new_trie('\0');
-    int rc = add_node(n,t);
+    trie_t *t = trie_new('\0');
+    int rc = trie_add_node(t,n);
 
     cr_assert_eq(rc,0,"add_node failed");
     cr_assert_not_null(t->children[(unsigned)n], "add_node failed to allocate new entry");
@@ -28,15 +28,15 @@ Test(trie, add_node_exists)
     cr_assert_eq(t->children[(unsigned)n]->is_word,0, "add_node failed to set is_word for new trie");
 }
 
-Test(trie, add_node_new)
+Test(trie, trie_add_node_new)
 {
     char n = 'n';
-    trie_t *t = new_trie('\0');
+    trie_t *t = trie_new('\0');
 
-    int fc = add_node(n,t);
+    int fc = trie_add_node(t,n);
     cr_assert_eq(fc,0,"add_node failed");
 
-    int rc = add_node(n,t);
+    int rc = trie_add_node(t,n);
 
     cr_assert_eq(rc,0,"add_node failed");
     cr_assert_not_null(t->children[(unsigned)n], "add_node failed to allocate new entry");
@@ -49,21 +49,21 @@ Test(trie, insert_string)
     char* s1 = "an";
     char* s2 = "anti";
     char* s3 = "ants";
-    trie_t *t = new_trie('\0');
+    trie_t *t = trie_new('\0');
 
-    int r1 = insert_string(s1,t);
+    int r1 = trie_insert_string(t,s1);
     cr_assert_eq(r1,0,"insert_string failed");   
     cr_assert_not_null(t->children['a'], "add_node failed to allocate new entry");
     cr_assert_eq(t->children['a']->is_word,0, "add_node failed to set is_word for new trie");
     cr_assert_not_null(t->children['a']->children['n'] , "add_node failed to allocate new entry");
     cr_assert_eq(t->children['a']->children['n']->is_word,1, "insert_string failed to set is_word for end character");
 
-    int r2 = insert_string(s2,t);
+    int r2 = trie_insert_string(t,s2);
     cr_assert_eq(r2,0,"insert_string failed");
     cr_assert_eq(t->children['a']->children['n']->is_word,1, "insert_string failed to set is_word for end character");
     cr_assert_eq(t->children['a']->children['n']->children['t']->children['i']->is_word,1, "insert_string failed to set is_word for end character");
 
-    int r3 = insert_string(s3,t);
+    int r3 = trie_insert_string(t,s3);
     cr_assert_eq(r3,0,"insert_string failed");
     cr_assert_eq(t->children['a']->children['n']->children['t']->is_word,0, "insert_string failed to set is_word for middle character");
     cr_assert_eq(t->children['a']->children['n']->children['t']->children['s']->is_word,1, "insert_string failed to set is_word for end character");
@@ -76,7 +76,7 @@ Test(trie, free)
     trie_t *t;
     int rc;
 
-    t = new_trie('\0');
+    t = trie_new('\0');
 
     cr_assert_not_null(t, "new_trie() failed to allocate memory");
 
@@ -92,10 +92,10 @@ Test(trie, empty_search)
     trie_t *t;
     int found;
     
-    t = new_trie('\0');
+    t = trie_new('\0');
     cr_assert_not_null(t, "new_trie() failed");
 
-    found = trie_search("b", t);
+    found = trie_search(t,"b");
 
     cr_assert_eq(found, 0, "trie_search() does not return 0 with an empty trie");
 }
@@ -106,13 +106,13 @@ void singleton_search(char* str, int expected)
     trie_t *t;
     int inserted, found;
 
-    t = new_trie('\0');
+    t = trie_new('\0');
     cr_assert_not_null(t, "new_trie() failed");
 
-    inserted = insert_string("CS220", t);
+    inserted = trie_insert_string(t,"CS220");
     cr_assert_eq(inserted, 0, "insert_string() failed");
 
-    found = trie_search(str, t); // Checks if str can be found 
+    found = trie_search(t,str); // Checks if str can be found 
     cr_assert_eq(found, expected, "trie_search() returns %s instead of %s with inserted word",
             (found==0)? "NOT_IN_TRIE" : ((found==1)? "IN_TRIE" : "PARTIAL_IN_TRIE"),
             (expected==0)? "NOT_IN_TRIE" : ((expected==1)? "IN_TRIE" : "PARTIAL_IN_TRIE"));
@@ -151,15 +151,15 @@ void twenty_search(char* str, int expected)
     trie_t *t;
     int inserted, found;
     char* words[21] = {"Ever", "loved", "someone", "so", "much,", "you", "would", "do", "anything", "for", "them?", "Yeah,", "well,", "make", "that", "yourself", "and", "whatever", "the", "hell", "want."}; // quote by Harvey Specter 
-    t = new_trie('\0');
+    t = trie_new('\0');
     cr_assert_not_null(t, "new_trie() failed");
 
     for (int i=0; i<21; i++) {
-        inserted = insert_string(words[i], t);
+        inserted = trie_insert_string(t,words[i]);
         cr_assert_eq(inserted, 0, "insert_string() failed for %dth string %s", i, words[i]);
     }
 
-    found = trie_search(str, t); // Checks if str can be found 
+    found = trie_search(t,str); // Checks if str can be found 
     cr_assert_eq(found, expected, "trie_search() for %s returns %s instead of %s with inserted word",
             str,
             (found==0)? "NOT_IN_TRIE" : ((found==1)? "IN_TRIE" : "PARTIAL_IN_TRIE"),
@@ -208,16 +208,16 @@ void search_completion (char* pre, int expected){
     trie_t *t;
     int inserted, number;
     char* words[8] = {"an","ant","anti", "antique", "antiquity", "antelope", "antman","anthropology"}; 
-    t = new_trie('\0');
+    t = trie_new('\0');
     cr_assert_not_null(t, "new_trie() failed");
 
     for (int i=0; i<8; i++) {
-        inserted = insert_string(words[i], t);
+        inserted = trie_insert_string(t,words[i]);
         cr_assert_eq(inserted, 0, "insert_string() failed for %dth string %s", i, words[i]);
     }
 
-    number = count_completion(pre, t); // Checks if str can be found 
-    cr_assert_eq(number, expected, "count_completion() for %s returns %d completions instead of %s.\n",
+    number = trie_count_completion(t,pre); // Checks if str can be found 
+    cr_assert_eq(number, expected, "count_completion() for %s returns %d completions instead of %d.\n",
             pre,
             number,
             expected);

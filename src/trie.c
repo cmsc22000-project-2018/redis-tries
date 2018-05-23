@@ -10,7 +10,7 @@
 #include "utils.h"
 
 /* See trie.h */
-trie_t *new_trie(char current)
+trie_t *trie_new(char current)
 {
     trie_t *t = calloc(1,sizeof(trie_t));
     
@@ -46,20 +46,20 @@ int trie_free(trie_t *t)
     return 0;
 }
 
-int add_node(char current, trie_t *t)
+int trie_add_node(trie_t *t, char current)
 {
     assert( t != NULL);
 
     unsigned c = (unsigned) current;
 
     if (t->children[c] == NULL)
-        t->children[c] = new_trie(current);
+        t->children[c] = trie_new(current);
 
     return 0;  
 
 }
 
-int insert_string(char *word, trie_t *t)
+int trie_insert_string(trie_t *t,char *word)
 {
     assert(t!=NULL);
 
@@ -71,19 +71,19 @@ int insert_string(char *word, trie_t *t)
 
         char curr = *word;
 
-        int rc = add_node(curr, t);
+        int rc = trie_add_node(t,curr);
         if (rc != 0){
             error("Fail to add_node");
             return 1;
         }
         
         word++;
-        return insert_string(word, t->children[(unsigned)curr]);
+        return trie_insert_string(t->children[(unsigned)curr],word);
     }
 }
 
 
-trie_t *trie_search_end(char* word, trie_t *t)
+trie_t *trie_get_subtrie(trie_t *t, char* word)
 {
 
     int len;
@@ -108,9 +108,9 @@ trie_t *trie_search_end(char* word, trie_t *t)
 }
 
 
-int trie_search(char* word, trie_t *t)
+int trie_search(trie_t *t, char* word)
 {
-    trie_t *end = trie_search_end(word,t);
+    trie_t *end = trie_get_subtrie(t,word);
 
     if (end == NULL)
         return NOT_IN_TRIE;
@@ -121,7 +121,7 @@ int trie_search(char* word, trie_t *t)
     return PARTIAL_IN_TRIE;
 }
 
-int count_completion_recursive( trie_t *t){
+int trie_count_completion_recursive( trie_t *t){
 
 	int acc = 0;
 
@@ -132,30 +132,20 @@ int count_completion_recursive( trie_t *t){
 		acc++;
 
 	for (int i=0;i<256;i++)
-		acc += count_completion_recursive(t->children[i]);
+		acc += trie_count_completion_recursive(t->children[i]);
 
 	return acc;
 }
 
-/*
-    Count the number of different possible endings of a given prefix in a trie
-    
-    Parameters:
-     - pre: a string of the prefix converned
-     - t: a trie pointer
 
-    Returns:
-     - an integer of the number of endings if the prefix exists in the trie
-     - 0 if the prefix does not exist in the trie
-*/
-int count_completion(char *pre, trie_t *t){
+int trie_count_completion( trie_t *t, char *pre){
 
-	trie_t *end = trie_search_end(pre, t);
+	trie_t *end = trie_get_subtrie(t,pre);
 
 	if (end == NULL)
 		return 0;
 
-	return count_completion_recursive(end);
+	return trie_count_completion_recursive(end);
 	
 }
 

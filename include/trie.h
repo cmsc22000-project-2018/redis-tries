@@ -29,7 +29,7 @@ struct trie_t {
      - A pointer to the trie, or NULL if a pointer 
        cannot be allocated
 */
-trie_t *new_trie (char current);
+trie_t *trie_new (char current);
 
 /*
     Free an entire trie.
@@ -57,7 +57,7 @@ int trie_free(trie_t *t);
      - Set t->children[current] to be current
      - is_word for new node set to 0.
 */
-int add_node(char current, trie_t *t);
+int trie_add_node(trie_t *t, char current);
 
 /*
     Inserts word into trie.
@@ -76,7 +76,7 @@ int add_node(char current, trie_t *t);
      - Then move on to the next character in string
      - Set the is_word of the last node to 1
 */
-int insert_string(char *word, trie_t *t);
+int trie_insert_string(trie_t *t, char *word);
 
 /*
     Delete word in trie.
@@ -98,7 +98,7 @@ int insert_string(char *word, trie_t *t);
      - If word is present in the trie, having at least one other word as a prefix, 
         delete all the nodes up to the prefix.
 */
-int delete_string(char *word, trie_t *t);
+int trie_delete_string(trie_t *t, char *word);
 
 
 
@@ -108,7 +108,7 @@ int delete_string(char *word, trie_t *t);
  *  - pointer to the last letter in the word/prefix if word/prefix is found. 
  *  - NULL if word/prefix is not found.
  */
-trie_t *trie_search_end(char* word, trie_t *t);
+trie_t *trie_get_subtrie(trie_t *t, char* word);
 
 /* Searches for word in a trie t. 
  *
@@ -117,7 +117,7 @@ trie_t *trie_search_end(char* word, trie_t *t);
  *  - NOT_IN_TRIE  if word is not found at all.
  *  - PARTIAL_IN_TRIE if word is found but end node's is_word is 0.
  */
-int trie_search(char *word, trie_t *t);
+int trie_search(trie_t *t, char *word);
 
 /*
     Count the number of different possible endings of a given prefix in a trie
@@ -130,7 +130,7 @@ int trie_search(char *word, trie_t *t);
      - an integer of the number of endings if the prefix exists in the trie
      - 0 if the prefix does not exist in the trie
 */
-int count_completion(char *pre, trie_t *t);
+int trie_count_completion(trie_t *t, char *pre);
 
 
 #endif
