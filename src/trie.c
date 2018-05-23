@@ -99,13 +99,13 @@ int trie_search(char* word, trie_t *t)
         curr = next[j];
 
         if (curr == NULL)
-            return 0;
+            return NOT_IN_TRIE;
 
         next = next[j]->children;
     }
 
     if (curr->is_word == 1) 
-        return 1;
+        return IN_TRIE;
 
-    return -1;
+    return PARTIAL_IN_TRIE;
 }
