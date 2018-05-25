@@ -1,26 +1,14 @@
-# find the OS
-uname_S := $(shell sh -c 'uname -s 2>/dev/null || echo not')
+LDFLAGS = -shared -Bsymbolic
+CFLAGS = -I../redismodule.h -fPIC -g -lc -lm -W -Wall -fno-common -ggdb -std=gnu99 -O2
+CC = gcc
+SRCS = trie.c
+OBJS = $(SRCS:.c=.o)
+BINS = trie.so
 
-# Compile flags for linux / osx
-ifeq ($(uname_S),Linux)
-	SHOBJ_CFLAGS ?= -W -Wall -fno-common -g -ggdb -std=c99 -O2
-	SHOBJ_LDFLAGS ?= -shared
-else
-	SHOBJ_CFLAGS ?= -W -Wall -dynamic -fno-common -g -ggdb -std=c99 -O2
-	SHOBJ_LDFLAGS ?= -bundle -undefined dynamic_lookup
-endif
+all: $(BINS)
 
-.SUFFIXES: .c .so .xo .o
-
-all: trie.so
-
-.c.xo:
-	$(CC) -I. $(CFLAGS) $(SHOBJ_CFLAGS) -fPIC -c $< -o $@
-
-trie.xo: ../redismodule.h
-
-trie.so: trie.xo
-	$(LD) -o $@ $< $(SHOBJ_LDFLAGS) $(LIBS) -lc
+$(BINS): $(OBJS)
+	$(LD) -o $@ $^ $(LDFLAGS) $(LIBS)
 
 clean:
-	rm -rf *.xo *.so
+	rm -rf *.o *.so
