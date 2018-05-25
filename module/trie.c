@@ -6,7 +6,7 @@
 #define NOT_IN_TRIE 0 
 #define PARTIAL_IN_TRIE (-1)
 
-#include "../redismodule.h"
+#include "redismodule.h"
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
