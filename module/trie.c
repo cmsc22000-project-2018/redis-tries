@@ -38,23 +38,19 @@ struct trie {
      - A pointer to the trie, or REDISMODULE_ERR if a pointer 
        cannot be allocated
 */
-struct trie *new_trie (char current)
+struct trie *trie_new (char current)
 {
-    struct trie *t = RedisModule_Calloc(1,sizeof(*t));
-    
+    struct trie *t = RedisModule_Calloc(1,sizeof(struct trie));
     if (t == NULL){
         fprintf(stderr, "Could not allocate memory for trie\n");
         return NULL;
     } 
-
     t->current = current;
-
-    t->children = RedisModule_Calloc(256,sizeof(t));
+    t->children = RedisModule_Calloc(256,sizeof(struct trie *));
     if (t->children == NULL){
         fprintf(stderr, "Could not allocate memory for t->children\n");
         return NULL;
     }
-
     t->is_word = 0;
     t->parent = NULL;
     return t;
@@ -71,13 +67,11 @@ struct trie *new_trie (char current)
 int trie_free(struct trie *t)
 {
     if (t != NULL) {
-
         for (int i=0; i<256; i++ ){
             if (t->children[i] !=NULL)
-                trie_free(t->children[i]);
+                trie_free(t->children[i]); // Called recursively because the entire trie and all of a trie's children are RedisModule_Calloc'ed
         }
-
-        RedisModule_Free(t);
+        RedisModule_Free(t); // Used because the data structures are originally RedisModule_Calloc'ed
     }
     return 0;
 }
@@ -94,14 +88,12 @@ int trie_free(struct trie *t)
      - Set t->children[current] to be current
      - is_word for new node set to 0.
 */
-int add_node(char current, struct trie *t)
+int add_node(struct trie *t, char current)
 {
     assert(t != NULL);
-
-    unsigned c = (unsigned) current;
-
+    unsigned c = (unsigned) current; // Current is casted because the compiler will throw unnecessary warnings otherwise
     if (t->children[c] == NULL)
-        t->children[c] = new_trie(current);
+        t->children[c] = trie_new(current);
     return 0;  
 }
 
@@ -121,22 +113,21 @@ int add_node(char current, struct trie *t)
      - Then move on to the next character in string
      - Set the is_word of the last node to 1
 */
-int insert_string(char *word, struct trie *t)
+int trie_insert_string(struct trie *t, char *word)
 {
     assert(t != NULL);
-
     if (*word == '\0'){
         t->is_word=1;
         return 0;
     } else {
         char curr = *word;
-        int rc = add_node(curr, t);
+        int rc = add_node(t, curr);
         if (rc != 0){
             fprintf(stderr, "Fail to add_node");
             return 1;
         }
         word++;
-        return insert_string(word, t->children[(unsigned)curr]);
+        return trie_insert_string(t->children[(unsigned)curr], word);
     }
 }
 
@@ -147,29 +138,23 @@ int insert_string(char *word, struct trie *t)
  *  - 0 if word is not found at all.
  *  - -1 if word is found but end node's is_word is 0.
  */
-int trie_search(char* word, struct trie *t)
+int trie_search(struct trie *t, char* word)
 {
     int len;
     struct trie* curr;
     struct trie** next;
-
     len = strlen(word);
     curr = t;
     next = t->children;
-
     for (int i=0; i<len; i++) {
         int j = (int) word[i];
         curr = next[j];
-
         if (curr == NULL)
             return NOT_IN_TRIE;
-
         next = next[j]->children;
     }
-
     if (curr->is_word == 1) 
         return IN_TRIE;
-
     return PARTIAL_IN_TRIE;
 }
 
@@ -199,14 +184,14 @@ int TrieInsert_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int a
     struct trie *t;
     /* Create an empty value object if the key is currently empty. */
     if (type == REDISMODULE_KEYTYPE_EMPTY) {
-    	t = new_trie('\0');
+    	t = trie_new('\0');
     	RedisModule_ModuleTypeSetValue(key,trie,t);
     } else {
         t = RedisModule_ModuleTypeGetValue(key);
     }
 
     /* Insert the new string. */
-    insert_string(temp, t);
+    trie_insert_string(t, temp);
     
 	RedisModule_ReplyWithSimpleString(ctx, "Success");    
 	RedisModule_ReplicateVerbatim(ctx);
@@ -236,7 +221,7 @@ int TrieContains_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int
     t = RedisModule_ModuleTypeGetValue(key);
 
     /* Check for the string. */
-    int c = trie_search(temp, t);
+    int c = trie_search(t, temp);
     
     if (c == 1) {
         RedisModule_ReplyWithSimpleString(ctx, "The trie contains the word.");
