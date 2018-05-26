@@ -15,10 +15,10 @@ before_install:
 jobs:
   include:
     - stage: build
-      script: make clean all
+      script: make all
     - stage: test
       script:
-          - make clean all
+          - make  all
           - make -C tests/ all
           - tests/test-libtrie
       
