@@ -116,7 +116,7 @@ int trie_search(trie_t *t, char* word)
 
     if (end->is_word == 1) 
         return IN_TRIE;
-    return PARTIAL_IN_TREE;
+    return PARTIAL_IN_TRIE;
 }
 
 int trie_count_completion_recursive( trie_t *t){
