@@ -114,8 +114,7 @@ int trie_delete_string(trie_t *t, char *word);
      - 1 if it doesn't
 
 */
-int trie_char_exists(trie_t *t, char c) 
-
+int trie_char_exists(trie_t *t, char c); 
 
 /* Searches for a word/prefix in a trie t. 
  *

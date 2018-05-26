@@ -29,7 +29,7 @@ trie_t *trie_new(char current)
 
     t->is_word = 0;
     t->parent = NULL;
-    t->charlist = calloc(256 * sizeof(char));
+    t->charlist = calloc(256, sizeof(char));
 
     return t;
 }
@@ -69,11 +69,11 @@ int trie_insert_string(trie_t *t, char *word)
         return 0;
     } else {
 
-        int len = strlen(str);
+        int len = strlen(word);
         int index;
         for(int i = 0; i < len; i++) {
-            index = (int)str[i];
-            t->charlist[index] = str[i];
+            index = (int)word[i];
+            t->charlist[index] = word[i];
         }
 
         char curr = *word;

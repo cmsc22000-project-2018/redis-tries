@@ -334,7 +334,7 @@ Test(trie_char_exists, trie_chars_exists_null) {
 
     t = trie_new('\0');
 
-    rc = dict_chars_exists(t, '\0');
+    rc = trie_char_exists(t, '\0');
 
     cr_assert_eq(rc, EXIT_FAILURE, "trie_char_exists succeeded when it shouldn't have");
 }
