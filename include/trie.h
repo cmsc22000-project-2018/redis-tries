@@ -17,6 +17,8 @@ struct trie_t {
         // if is_word is 1, indicates that this is the end of a word. Otherwise 0.
     trie_t *parent;
         // parent trie_t for traversing backwards
+    char *charlist;
+        // list of characters that are contained in the node and its children
 };
 
 /*
@@ -100,6 +102,19 @@ int trie_insert_string(trie_t *t, char *word);
 */
 int trie_delete_string(trie_t *t, char *word);
 
+/*
+    Checks if a char exists in a trie
+
+    Parameters:
+     - t: A pointer to the given trie
+     - c: The character we want to check
+
+    Returns:
+     - 0 if c exists in t
+     - 1 if it doesn't
+
+*/
+int trie_char_exists(trie_t *t, char c) 
 
 
 /* Searches for a word/prefix in a trie t. 

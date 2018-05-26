@@ -29,6 +29,7 @@ trie_t *trie_new(char current)
 
     t->is_word = 0;
     t->parent = NULL;
+    t->charlist = calloc(256 * sizeof(char));
 
     return t;
 }
@@ -37,11 +38,11 @@ int trie_free(trie_t *t)
 {
     assert( t != NULL);
 
-    for (int i=0; i<256; i++ ){
+    for (int i=0; i< 256; i++ ){
         if (t->children[i] !=NULL)
             trie_free(t->children[i]);
     }
-
+    free(t->charlist);
     free(t);
     return 0;
 }
@@ -59,15 +60,21 @@ int trie_add_node(trie_t *t, char current)
 
 }
 
-int trie_insert_string(trie_t *t,char *word)
+int trie_insert_string(trie_t *t, char *word)
 {
-    assert(t!=NULL);
+    assert(t != NULL);
 
     if (*word == '\0'){
         t->is_word=1;
         return 0;
-
     } else {
+
+        int len = strlen(str);
+        int index;
+        for(int i = 0; i < len; i++) {
+            index = (int)str[i];
+            t->charlist[index] = str[i];
+        }
 
         char curr = *word;
 
@@ -80,6 +87,20 @@ int trie_insert_string(trie_t *t,char *word)
         word++;
         return trie_insert_string(t->children[(unsigned)curr],word);
     }
+}
+
+int trie_char_exists(trie_t *t, char c) 
+{
+    assert(t != NULL);
+    assert(t->charlist != NULL);
+
+    int index = (int)c;
+
+    if (t->charlist[index] == '\0') {
+        return EXIT_FAILURE;
+    } 
+
+    return EXIT_SUCCESS;
 }
 
 
@@ -118,7 +139,7 @@ int trie_search(trie_t *t, char* word)
     return PARTIAL_IN_TRIE;
 }
 
-int trie_count_completion_recursive( trie_t *t)
+int trie_count_completion_recursive(trie_t *t)
 {
 	int acc = 0;
 
