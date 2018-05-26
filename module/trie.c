@@ -118,7 +118,8 @@ int trie_add_node(struct trie *t, char current)
      - 0 on success, 1 if error occurs.
     
     Details:
-     - For each trie, check if entry of the next character exists in the children array:
+     - For each trie, check if entry of the next character 
+       exists in the children array:
           - If so, move into that node in the array
           - If not, add a new node and move into that node in the array
      - Then move on to the next character in string
@@ -172,7 +173,8 @@ int trie_search(struct trie *t, char* word)
 /* ===== "trie" type commands (Redis wrapper functions) ===== */
 
 /* TRIE.INSERT key value */
-int TrieInsert_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc) {
+int TrieInsert_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, 
+        int argc) {
     RedisModule_AutoMemory(ctx); /* Use automatic memory management. */
     
     if (argc != 3) return RedisModule_WrongArity(ctx);
@@ -189,7 +191,8 @@ int TrieInsert_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int a
     char *temp = RedisModule_StringPtrLen(argv[2], &dummy);
     char *empty = "";
     if (temp == NULL || strcmp(temp, empty) == 0) {
-    	return RedisModule_ReplyWithError(ctx, "ERR invalid value");
+    	return RedisModule_ReplyWithError(ctx, "ERR invalid value: must \
+                be a string");
     } 
 
     struct trie *t;
@@ -210,7 +213,8 @@ int TrieInsert_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int a
 }
 
 /* TRIE.CONTAINS key value */
-int TrieContains_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc) {
+int TrieContains_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, 
+        int argc) {
     RedisModule_AutoMemory(ctx); /* Use automatic memory management. */
 
     if (argc != 3) return RedisModule_WrongArity(ctx);
@@ -219,7 +223,8 @@ int TrieContains_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int
         REDISMODULE_READ|REDISMODULE_WRITE);
     int type = RedisModule_KeyType(key);
     if (type == REDISMODULE_KEYTYPE_EMPTY) {
-    	return RedisModule_ReplyWithError(ctx, "ERR invalid key: not an existing trie");
+    	return RedisModule_ReplyWithError(ctx, "ERR invalid key: not an \
+                existing trie");
     }
     else if (RedisModule_ModuleTypeGetType(key) != trie)
     {
@@ -237,10 +242,11 @@ int TrieContains_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int
     if (c == 1) {
         RedisModule_ReplyWithSimpleString(ctx, "The trie contains the word.");
     } else if (c == 0) {
-        RedisModule_ReplyWithSimpleString(ctx, "The trie does not contain the word.");
+        RedisModule_ReplyWithSimpleString(ctx, "The trie does not contain \
+                the word.");
     } else {
-        RedisModule_ReplyWithSimpleString(ctx, "The trie contains it
-        as a prefix but not as a word.");  
+        RedisModule_ReplyWithSimpleString(ctx, "The trie contains it as a \
+                prefix but not as a word.");  
     }       
     RedisModule_ReplicateVerbatim(ctx);
     return REDISMODULE_OK;
