@@ -15,17 +15,20 @@
 
 static RedisModuleType *trie;
 
-/* ========================== Internal data structure (Bare bones functions)  ======================= */
+/* ===== Internal data structure (Bare bones functions)  ====== */
 
 struct trie {
-    char current; 
-        // The first trie_t will be '/0' for any Trie.
+    // The first trie_t will be '/0' for any Trie.
+    char current;
+    
+    // ALPHABET_SIZE is 256 for all possible characters.     
     struct trie **children;
-         // ALPHABET_SIZE is 256 for all possible characters.
+    
+    // if is_word is 1, indicates that this is the end of a word. Otherwise 0.
     int is_word; 
-        // if is_word is 1, indicates that this is the end of a word. Otherwise 0.
+
+    // parent trie for traversing backwards
     struct trie *parent;
-        // parent trie for traversing backwards
 };
 
 /*
@@ -40,14 +43,14 @@ struct trie {
 */
 struct trie *trie_new (char current)
 {
-    struct trie *t = RedisModule_Calloc(1,sizeof(struct trie));
-    if (t == NULL){
+    struct trie *t = RedisModule_Calloc(1, sizeof(struct trie));
+    if (t == NULL) {
         fprintf(stderr, "Could not allocate memory for trie\n");
         return NULL;
     } 
     t->current = current;
-    t->children = RedisModule_Calloc(256,sizeof(struct trie *));
-    if (t->children == NULL){
+    t->children = RedisModule_Calloc(256, sizeof(struct trie *));
+    if (t->children == NULL) {
         fprintf(stderr, "Could not allocate memory for t->children\n");
         return NULL;
     }
@@ -67,11 +70,17 @@ struct trie *trie_new (char current)
 int trie_free(struct trie *t)
 {
     if (t != NULL) {
-        for (int i=0; i<256; i++ ){
-            if (t->children[i] !=NULL)
-                trie_free(t->children[i]); // Called recursively because the entire trie and all of a trie's children are RedisModule_Calloc'ed
+        for (int i = 0; i < 256; i++) {
+            if (t->children[i] != NULL)
+                /* Called recursively because the entire trie 
+                 * and all of a trie's children are RedisModule_Calloc'ed 
+                 */
+                trie_free(t->children[i]); 
         }
-        RedisModule_Free(t); // Used because the data structures are originally RedisModule_Calloc'ed
+        /* Used because the data structures are 
+         * originally RedisModule_Calloc'ed 
+         */
+        RedisModule_Free(t); 
     }
     return 0;
 }
@@ -88,10 +97,12 @@ int trie_free(struct trie *t)
      - Set t->children[current] to be current
      - is_word for new node set to 0.
 */
-int add_node(struct trie *t, char current)
+int trie_add_node(struct trie *t, char current)
 {
     assert(t != NULL);
-    unsigned c = (unsigned) current; // Current is casted because the compiler will throw unnecessary warnings otherwise
+    /* Current is casted because the compiler 
+    will throw unnecessary warnings otherwise */
+    unsigned c = current; 
     if (t->children[c] == NULL)
         t->children[c] = trie_new(current);
     return 0;  
@@ -116,18 +127,18 @@ int add_node(struct trie *t, char current)
 int trie_insert_string(struct trie *t, char *word)
 {
     assert(t != NULL);
-    if (*word == '\0'){
-        t->is_word=1;
+    if (*word == '\0') {
+        t->is_word = 1;
         return 0;
     } else {
         char curr = *word;
-        int rc = add_node(t, curr);
-        if (rc != 0){
-            fprintf(stderr, "Fail to add_node");
+        int rc = trie_add_node(t, curr);
+        if (rc != 0) {
+            fprintf(stderr, "Fail to add node");
             return 1;
         }
         word++;
-        return trie_insert_string(t->children[(unsigned)curr], word);
+        return trie_insert_string(t->children[curr], word);
     }
 }
 
@@ -146,7 +157,7 @@ int trie_search(struct trie *t, char* word)
     len = strlen(word);
     curr = t;
     next = t->children;
-    for (int i=0; i<len; i++) {
+    for (int i = 0; i < len; i++) {
         int j = (int) word[i];
         curr = next[j];
         if (curr == NULL)
@@ -158,7 +169,7 @@ int trie_search(struct trie *t, char* word)
     return PARTIAL_IN_TRIE;
 }
 
-/* ========================= "trie" type commands (Redis wrapper functions) ======================= */
+/* ===== "trie" type commands (Redis wrapper functions) ===== */
 
 /* TRIE.INSERT key value */
 int TrieInsert_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc) {
@@ -166,26 +177,26 @@ int TrieInsert_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int a
     
     if (argc != 3) return RedisModule_WrongArity(ctx);
 
-	RedisModuleKey *key = RedisModule_OpenKey(ctx,argv[1],
+	RedisModuleKey *key = RedisModule_OpenKey(ctx, argv[1],
         REDISMODULE_READ|REDISMODULE_WRITE);
     int type = RedisModule_KeyType(key);
 	if (type != REDISMODULE_KEYTYPE_EMPTY &&
         RedisModule_ModuleTypeGetType(key) != trie)
     {
-        return RedisModule_ReplyWithError(ctx,REDISMODULE_ERRORMSG_WRONGTYPE);
+        return RedisModule_ReplyWithError(ctx, REDISMODULE_ERRORMSG_WRONGTYPE);
     }
     size_t dummy;
     char *temp = RedisModule_StringPtrLen(argv[2], &dummy);
     char *empty = "";
     if (temp == NULL || strcmp(temp, empty) == 0) {
-    	return RedisModule_ReplyWithError(ctx,"ERR invalid value: must be a string");
+    	return RedisModule_ReplyWithError(ctx, "ERR invalid value");
     } 
 
     struct trie *t;
     /* Create an empty value object if the key is currently empty. */
     if (type == REDISMODULE_KEYTYPE_EMPTY) {
     	t = trie_new('\0');
-    	RedisModule_ModuleTypeSetValue(key,trie,t);
+    	RedisModule_ModuleTypeSetValue(key, trie, t);
     } else {
         t = RedisModule_ModuleTypeGetValue(key);
     }
@@ -204,11 +215,11 @@ int TrieContains_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int
 
     if (argc != 3) return RedisModule_WrongArity(ctx);
 
-    RedisModuleKey *key = RedisModule_OpenKey(ctx,argv[1],
+    RedisModuleKey *key = RedisModule_OpenKey(ctx, argv[1],
         REDISMODULE_READ|REDISMODULE_WRITE);
     int type = RedisModule_KeyType(key);
     if (type == REDISMODULE_KEYTYPE_EMPTY) {
-    	return RedisModule_ReplyWithError(ctx,"ERR invalid key: not an existing trie");
+    	return RedisModule_ReplyWithError(ctx, "ERR invalid key: not an existing trie");
     }
     else if (RedisModule_ModuleTypeGetType(key) != trie)
     {
@@ -228,23 +239,26 @@ int TrieContains_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int
     } else if (c == 0) {
         RedisModule_ReplyWithSimpleString(ctx, "The trie does not contain the word.");
     } else {
-        RedisModule_ReplyWithSimpleString(ctx, "The trie contains it as a prefix but not as a word.");  
+        RedisModule_ReplyWithSimpleString(ctx, "The trie contains it
+        as a prefix but not as a word.");  
     }       
     RedisModule_ReplicateVerbatim(ctx);
     return REDISMODULE_OK;
 }
 
-/* ========================== "trie" type methods (Redis data saving and entry functions) ======================= */
+/* ===== "trie" type methods (Redis data saving and entry functions) ===== */
 
 /* This function must be present on each Redis module. It is used in order to
- * register the commands into the Redis server. */
+ * register the commands into the Redis server. 
+ */
 
 int RedisModule_OnLoad(RedisModuleCtx *ctx, RedisModuleString **argv, int argc) {
     REDISMODULE_NOT_USED(argv);
     REDISMODULE_NOT_USED(argc);
 
-    if (RedisModule_Init(ctx,"trie123az",1,REDISMODULE_APIVER_1)
-        == REDISMODULE_ERR) return REDISMODULE_ERR;
+    if (RedisModule_Init(ctx, "trie123az", 1, REDISMODULE_APIVER_1)
+        == REDISMODULE_ERR) 
+        return REDISMODULE_ERR;
 
     RedisModuleTypeMethods tm = {
         .version = REDISMODULE_TYPE_METHOD_VERSION,
@@ -256,15 +270,16 @@ int RedisModule_OnLoad(RedisModuleCtx *ctx, RedisModuleString **argv, int argc) 
         .digest = NULL
     };
 
-    trie = RedisModule_CreateDataType(ctx,"trie123az",0,&tm);
-    if (trie == NULL) return REDISMODULE_ERR;
-
-    if (RedisModule_CreateCommand(ctx,"trie.insert",
-        TrieInsert_RedisCommand,"write deny-oom",1,1,1) == REDISMODULE_ERR)
+    trie = RedisModule_CreateDataType(ctx, "trie123az", 0, &tm);
+    if (trie == NULL) 
         return REDISMODULE_ERR;
 
-    if (RedisModule_CreateCommand(ctx,"trie.contains",
-        TrieContains_RedisCommand,"readonly",1,1,1) == REDISMODULE_ERR)
+    if (RedisModule_CreateCommand(ctx, "trie.insert",
+        TrieInsert_RedisCommand, "write deny-oom", 1, 1, 1) == REDISMODULE_ERR)
+        return REDISMODULE_ERR;
+
+    if (RedisModule_CreateCommand(ctx, "trie.contains",
+        TrieContains_RedisCommand, "readonly", 1, 1, 1) == REDISMODULE_ERR)
         return REDISMODULE_ERR;
 
     return REDISMODULE_OK;
