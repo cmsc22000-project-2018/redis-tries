@@ -92,11 +92,11 @@ Test(trie, free_long)
     int inserted, rc;
     char* words[21] = {"Ever", "loved", "someone", "so", "much,", "you", "would", "do", "anything", "for", "them?", "Yeah,", "well,", "make", "that", "yourself", "and", "whatever", "the", "hell", "want."}; // quote by Harvey Specter 
 
-    t = new_trie('\0');
+    t = trie_new('\0');
     cr_assert_not_null(t, "new_trie() failed");
 
     for (int i=0; i<21; i++) {
-        inserted = insert_string(words[i], t);
+        inserted = trie_insert_string(words[i], t);
         cr_assert_eq(inserted, 0, "insert_string() failed for %dth string %s", i, words[i]);
     }
 
