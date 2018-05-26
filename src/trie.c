@@ -82,8 +82,10 @@ int insert_string(char *word, trie_t *t)
     }
 }
 
-int trie_search(char* word, trie_t *t)
+
+trie_t *trie_search_end(char* word, trie_t *t)
 {
+
     int len;
     trie_t* curr;
     trie_t** next;
@@ -97,13 +99,24 @@ int trie_search(char* word, trie_t *t)
         curr = next[j];
 
         if (curr == NULL)
-            return 0;
+            return NULL;
 
         next = next[j]->children;
     }
 
-    if (curr->is_word == 1) 
-        return 1;
+    return curr;
+}
 
-    return -1;
+
+int trie_search(char* word, trie_t *t)
+{
+    trie_t *end = trie_search_end(word,t);
+
+    if (end == NULL)
+        return NOT_IN_TRIE;
+
+    if (end->is_word == 1) 
+        return IN_TRIE;
+
+    return PARTIAL_IN_TRIE;
 }

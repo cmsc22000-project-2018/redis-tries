@@ -46,9 +46,9 @@ Test(trie, add_node_new)
 
 Test(trie, insert_string)
 {
-    char* s1 = strdup("an");
-    char* s2 = strdup("anti");
-    char* s3 = strdup("ants");
+    char* s1 = "an";
+    char* s2 = "anti";
+    char* s3 = "ants";
     trie_t *t = new_trie('\0');
 
     int r1 = insert_string(s1,t);
@@ -68,7 +68,6 @@ Test(trie, insert_string)
     cr_assert_eq(t->children['a']->children['n']->children['t']->is_word,0, "insert_string failed to set is_word for middle character");
     cr_assert_eq(t->children['a']->children['n']->children['t']->children['s']->is_word,1, "insert_string failed to set is_word for end character");
 
-
 }
 
 Test(trie, free)
@@ -85,6 +84,27 @@ Test(trie, free)
     cr_assert_eq(rc, 0, "trie_free failed");
 
 }
+
+/* Checks trie_free on a long trie */
+Test(trie, free_long)
+{
+    trie_t *t;
+    int inserted, rc;
+    char* words[21] = {"Ever", "loved", "someone", "so", "much,", "you", "would", "do", "anything", "for", "them?", "Yeah,", "well,", "make", "that", "yourself", "and", "whatever", "the", "hell", "want."}; // quote by Harvey Specter 
+
+    t = new_trie('\0');
+    cr_assert_not_null(t, "new_trie() failed");
+
+    for (int i=0; i<21; i++) {
+        inserted = insert_string(words[i], t);
+        cr_assert_eq(inserted, 0, "insert_string() failed for %dth string %s", i, words[i]);
+    }
+
+    rc = trie_free(t);
+
+    cr_assert_eq(rc, 0, "trie_free failed");
+}
+
 
 /* Checks that searching an empty trie returns 0 */
 Test(trie, empty_search)
@@ -201,3 +221,64 @@ Test(trie, twenty_search_not_inserted)
     for (int i=0; i<8; i++) 
         twenty_search(words[i], NOT_IN_TRIE);
 }
+
+/* Integration test using new_trie, insert_string (which uses add_node), trie_search, and trie_free */
+void integration(char* str, int expected)
+{
+    trie_t *t;
+    int inserted, found;
+    char* words[9] = {"Everybody", "has", "a", "chapter", "they", "don't", "read", "out", "loud."}; // - Unknown
+
+    t = new_trie('\0');
+    cr_assert_not_null(t, "new_trie() failed");
+
+    for (int i=0; i<9; i++) {
+        inserted = insert_string(words[i], t);
+        cr_assert_eq(inserted, 0, "insert_string() failed for %dth string %s", i, words[i]);
+    }
+
+    found = trie_search(str, t); // Checks if str can be found 
+    cr_assert_eq(found, expected, "trie_search() for %s returns %s instead of %s with inserted word",
+            str,
+            (found==0)? "NOT_IN_TRIE" : ((found==1)? "IN_TRIE" : "PARTIAL_IN_TRIE"),
+            (expected==0)? "NOT_IN_TRIE" : ((expected==1)? "IN_TRIE" : "PARTIAL_IN_TRIE"));
+
+    trie_free(t);
+}
+
+/* Checks inserted strings in integration test */
+Test(trie, integration_inserted)
+{
+    char* words[9] = {"Everybody", "has", "a", "chapter", "they", "don't", "read", "out", "loud."}; // - Unknown
+
+    for (int i=0; i<9; i++) 
+        integration(words[i], IN_TRIE);
+}
+
+/* Checks prefixes of inserted strings in integration test */
+Test(trie, integration_prefix)
+{
+    char* words[8] = {"Every", "ha", "chap", "the", "do", "rea", "o", "loud"}; // - Unknown
+
+    for (int i=0; i<8; i++) 
+        integration(words[i], PARTIAL_IN_TRIE);
+}
+
+/* Checks of non-inserted strings in integration test */
+Test(trie, integration_not_inserted)
+{
+    char* words[8] = {"Blah", "Tuba", "Player", "Wow", "7th", "Coolio", "whattt", "ranking"}; // - Unknown
+
+    for (int i=0; i<8; i++) 
+        integration(words[i], NOT_IN_TRIE);
+}
+
+/* Checks extensions of inserted strings in integration test */
+Test(trie, integration_extension)
+{
+    char* words[9] = {"Everybody's", "hasp", "an", "chapters", "they're", "don't0", "reading", "outer", "loud.duol"}; // - Unknown
+
+    for (int i=0; i<9; i++) 
+        integration(words[i], NOT_IN_TRIE);
+}
+

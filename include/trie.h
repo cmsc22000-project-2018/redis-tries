@@ -100,6 +100,16 @@ int insert_string(char *word, trie_t *t);
 */
 int delete_string(char *word, trie_t *t);
 
+
+
+/* Searches for a word/prefix in a trie t. 
+ *
+ * Returns: 
+ *  - pointer to the last letter in the word/prefix if word/prefix is found. 
+ *  - NULL if word/prefix is not found.
+ */
+trie_t *trie_search_end(char* word, trie_t *t);
+
 /* Searches for word in a trie t. 
  *
  * Returns: 
