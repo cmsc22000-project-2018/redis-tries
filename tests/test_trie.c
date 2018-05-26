@@ -96,8 +96,8 @@ Test(trie, free_long)
     cr_assert_not_null(t, "new_trie() failed");
 
     for (int i=0; i<21; i++) {
-        inserted = trie_insert_string(words[i], t);
-        cr_assert_eq(inserted, 0, "insert_string() failed for %dth string %s", i, words[i]);
+        inserted = trie_insert_string(t, words[i]);
+        cr_assert_eq(inserted, 0, "trie_insert_string() failed for %dth string %s", i, words[i]);
     }
 
     rc = trie_free(t);
