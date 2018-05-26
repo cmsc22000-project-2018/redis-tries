@@ -97,7 +97,6 @@ trie_t *trie_get_subtrie(trie_t *t, char* word)
     for (int i=0; i<len; i++) {
         int j = (int) word[i];
         curr = next[j];
-
         if (curr == NULL)
             return NULL;
         next = next[j]->children;
@@ -119,8 +118,8 @@ int trie_search(trie_t *t, char* word)
     return PARTIAL_IN_TRIE;
 }
 
-int trie_count_completion_recursive( trie_t *t){
-
+int trie_count_completion_recursive( trie_t *t)
+{
 	int acc = 0;
 
 	if (t == NULL)
@@ -136,8 +135,8 @@ int trie_count_completion_recursive( trie_t *t){
 }
 
 
-int trie_count_completion( trie_t *t, char *pre){
-
+int trie_count_completion( trie_t *t, char *pre)
+{
 	trie_t *end = trie_get_subtrie(t,pre);
 
 	if (end == NULL)
