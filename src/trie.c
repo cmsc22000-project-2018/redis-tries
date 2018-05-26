@@ -29,7 +29,6 @@ trie_t *new_trie(char current)
 
     t->is_word = 0;
     t->parent = NULL;
-    
 
     return t;
 }
@@ -55,7 +54,6 @@ int add_node(char current, trie_t *t)
 
     if (t->children[c] == NULL)
         t->children[c] = new_trie(current);
-    
 
     return 0;  
 
@@ -84,10 +82,8 @@ int insert_string(char *word, trie_t *t)
     }
 }
 
-
-trie_t *trie_search_end(char* word, trie_t *t)
+int trie_search(char* word, trie_t *t)
 {
-
     int len;
     trie_t* curr;
     trie_t** next;
@@ -101,24 +97,13 @@ trie_t *trie_search_end(char* word, trie_t *t)
         curr = next[j];
 
         if (curr == NULL)
-            return NULL;
+            return 0;
 
         next = next[j]->children;
     }
 
-    return curr;
-}
+    if (curr->is_word == 1) 
+        return 1;
 
-
-int trie_search(char* word, trie_t *t)
-{
-    trie_t *end = trie_search_end(word,t);
-
-    if (end == NULL)
-        return NOT_IN_TRIE;
-
-    if (end->is_word == 1) 
-        return IN_TRIE;
-
-    return PARTIAL_IN_TRIE;
+    return -1;
 }
