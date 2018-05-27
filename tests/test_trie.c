@@ -12,7 +12,7 @@ Test(trie, trie_new)
     t = trie_new('\0');
 
     cr_assert_not_null(t, "trie_new() failed to allocate memory");
-    cr_assert_eq(t->current, 'c', "trie_new() failed to set current");
+    cr_assert_eq(t->current, '\0', "trie_new() failed to set current");
     cr_assert_eq(t->is_word, 0, "trie_new() failed to set is_word");
 }
 
