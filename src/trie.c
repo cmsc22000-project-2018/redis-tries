@@ -76,7 +76,8 @@ int trie_insert_string(trie_t *t, char *word)
             t->charlist[index] = word[i];
         }
 
-        char curr = *word;
+        char curr = word[0];
+        index = (int)word;
 
         int rc = trie_add_node(t, curr);
         if (rc != 0) {
@@ -85,7 +86,7 @@ int trie_insert_string(trie_t *t, char *word)
         }
         
         word++;
-        return trie_insert_string(t->children[curr],word);
+        return trie_insert_string(t->children[index],word);
     }
 }
 
