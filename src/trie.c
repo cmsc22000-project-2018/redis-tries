@@ -52,7 +52,7 @@ int trie_add_node(trie_t *t, char current)
 {
     assert(t != NULL);
 
-    unsigned c = (unsigned)current;
+    unsigned int c = (unsigned)current;
 
     if (t->children[c] == NULL)
         t->children[c] = trie_new(current);
@@ -69,6 +69,13 @@ int trie_insert_string(trie_t *t, char *word)
         return EXIT_SUCCESS;
 
     } else {
+        int len = strlen(word);
+        int index;
+        for (int i = 0; i < len; i++) {
+            index = (int)word[i];
+            t->charlist[index] = word[i];
+        }
+
         char curr = *word;
 
         int rc = trie_add_node(t, curr);
