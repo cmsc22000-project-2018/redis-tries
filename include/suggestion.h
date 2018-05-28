@@ -1,4 +1,4 @@
-//*
+/*
  * A module to generate suggestions for a word
  */
 
