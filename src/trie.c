@@ -77,7 +77,7 @@ int trie_insert_string(trie_t *t, char *word)
         }
 
         char curr = word[0];
-        index = (int)word;
+        index = (int)curr;
 
         int rc = trie_add_node(t, curr);
         if (rc != 0) {
