@@ -274,11 +274,8 @@ Test(count_completion, prefix_in_trie_5)
     search_completion("antiq",2);
 }
 
-/*
-************ dict_chars_exists tests ****************************
-*/
-
-Test(trie_char_exists, trie_char_exists_failure0) {
+/* Checking if trie_char_exists() can check for a char not in trie */
+Test(trie, trie_char_exists_failure0) {
     trie_t *t;
     int rc;
 
@@ -289,7 +286,8 @@ Test(trie_char_exists, trie_char_exists_failure0) {
     cr_assert_eq(rc, EXIT_FAILURE, "trie_char_exists succeeded when it shouldn't have");
 }
 
-Test(trie_char_exists, trie_char_exists_failure1) {
+/* Checking if trie_char_exists() can check for a char not in trie */
+Test(trie, trie_char_exists_failure1) {
     trie_t *t;
     int rc;
 
@@ -302,7 +300,8 @@ Test(trie_char_exists, trie_char_exists_failure1) {
     cr_assert_eq(rc, EXIT_FAILURE, "trie_char_exists succeeded when it shouldn't have");
 }
 
-Test(trie_char_exists, trie_char_exists_success0) {
+/* Checking if trie_char_exists() can check for a char in trie */
+Test(trie, trie_char_exists_success0) {
     trie_t *t;
     int rc;
 
@@ -315,7 +314,8 @@ Test(trie_char_exists, trie_char_exists_success0) {
     cr_assert_eq(rc, EXIT_SUCCESS, "trie_char_exists failed when it should have succeeded");
 }
 
-Test(trie_char_exists, trie_char_exists_success1) {
+/* Checking if trie_char_exists() can check for a char in trie */
+Test(trie, trie_char_exists_success1) {
     trie_t *t;
     int rc;
 
@@ -328,7 +328,8 @@ Test(trie_char_exists, trie_char_exists_success1) {
     cr_assert_eq(rc, EXIT_SUCCESS, "trie_char_exists failed when it should have succeeded");
 }
 
-Test(trie_char_exists, trie_chars_exists_null) {
+/* Checking if trie_char_exists() can check for a terminal character in trie */
+Test(trie, trie_chars_exists_null) {
     trie_t *t;
     int rc;
 

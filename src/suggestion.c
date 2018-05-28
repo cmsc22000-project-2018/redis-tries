@@ -14,24 +14,15 @@
 #include "trie.h"
 
 int has_children(trie_t *t, char *s) {
-    // if (t->is_word == 0) {
-    //     return 0;
-    // }
-    // for (int i = 0; i < 256; i++) {
-    //     if (t->children[i] != NULL) {
-    //         return 0;
-    //     }
-    // }
-
-    if (1 || t || s)
-        return EXIT_SUCCESS;
+    
+    return !trie_search(t, s);
 }
 
 /* See suggestion.h */
 int cmp_match(const void* a, const void* b) {
 
-    const match_t* aa = *(const match_t**)a;
-    const match_t* bb = *(const match_t**)b;
+    match_t *aa = *(match_t **)a;
+    match_t *bb = *(match_t **)b;
 
     // Put null entries at the end of the list
     if (aa == NULL) {
@@ -42,7 +33,7 @@ int cmp_match(const void* a, const void* b) {
 
     // Prioritize matches with the higher edits_left score
     if (aa->edits_left != bb->edits_left) {
-        return aa->edits_left - bb->edits_left;
+        return bb->edits_left - aa->edits_left;
     }
 
     // Otherwise sort lexographically
@@ -53,7 +44,7 @@ int cmp_match(const void* a, const void* b) {
 int move_on(match_t **set, trie_t *t, char *prefix, char *suffix, int edits_left, int max_matches) {
 
     int rc = 0;
-    int len = strnlen(prefix, MAXLEN);
+    int len = strlen(prefix);
     char* new_prefix;
 
     new_prefix = malloc(sizeof(char) * (MAXLEN + 1));
@@ -98,7 +89,7 @@ int try_replace(match_t **set, trie_t *t, char *prefix, char *suffix, int edits_
 
     int i;
     int rc = 0;
-    int len = strnlen(prefix, MAXLEN);
+    int len = strlen(prefix);
     char *new_prefix;
 
     // Ran out of space
@@ -106,7 +97,7 @@ int try_replace(match_t **set, trie_t *t, char *prefix, char *suffix, int edits_
         return rc + EXIT_FAILURE;
     }
 
-    for (i = 1; i < 256; i++) {
+    for (i = 1; i < 248; i++) {
 
         char c = (char)i;
 
@@ -145,10 +136,10 @@ int try_replace(match_t **set, trie_t *t, char *prefix, char *suffix, int edits_
 int try_swap(match_t **set, trie_t * t, char *prefix, char *suffix, int edits_left, int max_matches) {
 
     int rc = 0;
-    int len = strnlen(prefix, MAXLEN);
+    int len = strlen(prefix);
     char* new_prefix;
 
-    if (len == 0 || strnlen(suffix, MAXLEN) == 0) {
+    if (len == 0 || strlen(suffix) == 0) {
         return rc + EXIT_SUCCESS;
     }
 
@@ -180,7 +171,7 @@ int try_insert(match_t **set, trie_t *t, char *prefix, char *suffix, int edits_l
 
     int i;
     int rc = 0;
-    int len = strnlen(prefix, MAXLEN);
+    int len = strlen(prefix);
     char* new_prefix;
 
     // Ran out of space
@@ -188,7 +179,7 @@ int try_insert(match_t **set, trie_t *t, char *prefix, char *suffix, int edits_l
         return rc + EXIT_FAILURE;
     }
 
-    for (i = 1; i < 256; i++) {
+    for (i = 1; i < 248; i++) {
 
         char c = (char)i;
 
@@ -225,20 +216,12 @@ int attempt_add(match_t **set, trie_t *t, char *s, int edits_left, int max_match
     int i;
 
     // Check if the current string is in the trie
-    if (trie_search(t, s) == EXIT_SUCCESS) {
+    if (trie_search(t, s) == 1) {
 
         // Look for the string in the set to update it, or add it
         for (i = 0; i < max_matches; i++) {
 
-            // String already exists in suggestion set
-            if (strcmp(set[i]->str, s) == 0) {
-
-                // If we found the string in less edits, update its score
-                if (set[i]->edits_left > edits_left) {
-                    set[i]->edits_left = edits_left;
-                }
-
-            } else if (set[i] == NULL) {
+            if (set[i] == NULL) {
 
                 // String does not exist in the set, so add it
 
@@ -247,32 +230,60 @@ int attempt_add(match_t **set, trie_t *t, char *s, int edits_left, int max_match
                     return EXIT_FAILURE;
                 }
 
-                set[i]->str = strndup(s, MAXLEN);
+                set[i]->str = malloc(sizeof(char) * MAXLEN);
+                if (set[i]->str == NULL) {
+                    return EXIT_FAILURE;
+                }
+                strcpy(set[i]->str, s);
                 set[i]->edits_left = edits_left;
 
                 if (set[i]->str == NULL) {
-                    // strndup failed
+                    // strcpy failed
                     return EXIT_FAILURE;
                 }
+
+                // We don't want to trigger adding in place of the worst match
+                i = max_matches;
+
+                return EXIT_SUCCESS;
+
+            } else if (strcmp(set[i]->str, s) == 0) {
+
+                // String already exists in suggestion set
+
+                // If we found the string in less edits, update its score
+                if (set[i]->edits_left < edits_left) {
+                    set[i]->edits_left = edits_left;
+                }
+
+                // We don't want to trigger adding in place of the worst match
+                i = max_matches + 1;
 
                 break;
             }
         }
 
         // If we hit the maximum amount of items, then see if we can add it in place of the worst match
-        if (i == max_matches - 1) {
+        if (i == max_matches) {
+
+            i--;
 
             // Sort the set by edits_left and break ties alphabetically
-            qsort(set, sizeof(match_t*), max_matches, cmp_match);
+            qsort(set, max_matches, sizeof(match_t*), cmp_match);
 
             // If we found it in less edits or match was alphabetically first
-            if (set[i]->edits_left < edits_left || strncmp(set[i]->str, s, MAXLEN) < 0) {
+            if (set[i]->edits_left < edits_left 
+                || (set[i]->edits_left == edits_left && (strncmp(set[i]->str, s, MAXLEN) > 0))) {
 
-                set[i]->str = strndup(s, MAXLEN);
+                set[i]->str = malloc(sizeof(char) * MAXLEN);
+                if (set[i]->str == NULL) {
+                    return EXIT_FAILURE;
+                }
+                strcpy(set[i]->str, s);
                 set[i]->edits_left = edits_left;
 
                 if (set[i]->str == NULL) {
-                    // strndup failed
+                    // strcpy failed
                     return EXIT_FAILURE;
                 }
             }
@@ -354,7 +365,7 @@ char** suggestion_set_first_n(match_t **set, int n) {
         return NULL;
     }
 
-    qsort(set, sizeof(match_t*), n, cmp_match);
+    qsort(set, n, sizeof(match_t*), cmp_match);
 
     // Take the list of strings out of the match_t wrappers
     for (i = 0; i < n; i++) {

@@ -1,6 +1,7 @@
 #include <criterion/criterion.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdio.h>
 #include "suggestion.h"
 
 // Test has_children for success
@@ -19,6 +20,14 @@ Test(suggestion, has_children_f0) {
     cr_assert_eq(has_children(t, "ac"), EXIT_FAILURE, "has_children failed");
 }
 
+// Test has_children for empty prefix
+Test(suggestion, has_children_empty) {
+    trie_t *t = trie_new('\0');
+    trie_insert_string(t, "abc");
+
+    cr_assert_eq(has_children(t, ""), EXIT_SUCCESS, "has_children failed");
+}
+
 /*************   These functions individually test values for cmp_match   *************/
 
 void test_cmp_match(char *m1_str, char *m2_str, int m1_val, int m2_val, int expected) {
@@ -27,13 +36,12 @@ void test_cmp_match(char *m1_str, char *m2_str, int m1_val, int m2_val, int expe
 
     m1->str = m1_str;
     m2->str = m2_str;
+    
 
-    m1->edits_left = 0;
-    m2->edits_left = 1;
+    m1->edits_left = m1_val;
+    m2->edits_left = m2_val;
 
-    int rc = cmp_match((void*)m1, (void*)m2);
-
-    printf("%d\n", rc);
+    int rc = cmp_match(&m1, &m2);
 
     cr_assert_eq(rc, expected, "cmp_match on %s, %d and %s, %d returned %d instead of %d",
                  m1_str, m1_val, m2_str, m2_val, rc, expected);
@@ -41,11 +49,11 @@ void test_cmp_match(char *m1_str, char *m2_str, int m1_val, int m2_val, int expe
 
 Test(suggestion, cmp_match_0) {
     
-    test_cmp_match("aa", "ab", 0, 0, 1);
+    test_cmp_match("aa", "ab", 0, 0, -1);
 }
 
 Test(suggestion, cmp_match_1) {
-    test_cmp_match("ab", "aa", 0, 0, -1);
+    test_cmp_match("ab", "aa", 0, 0, 1);
 }
 
 Test(suggestion, cmp_match_2) {
@@ -58,26 +66,28 @@ Test(suggestion, cmp_match_3) {
 
 Test(suggestion, cmp_match_null0) {
     match_t *m1 = malloc(sizeof(match_t));
+    match_t *null = NULL;
 
     m1->str = "hi";
 
     m1->edits_left = 0;
 
-    int rc = cmp_match((void*)m1, (void*)NULL);
+    int rc = cmp_match(&m1, &null);
 
-    cr_assert_eq(rc, 1, "cmp_match with a null argument failed");
+    cr_assert_eq(rc, -1, "cmp_match with a null argument failed");
 }
 
 Test(suggestion, cmp_match_null1) {
     match_t *m1 = malloc(sizeof(match_t));
+    match_t *null = NULL;
 
     m1->str = "hi";
 
     m1->edits_left = 0;
 
-    int rc = cmp_match((void*)NULL, (void*)m1);
+    int rc = cmp_match(&null, &m1);
 
-    cr_assert_eq(rc, -1, "cmp_match with a null argument failed");
+    cr_assert_eq(rc, 1, "cmp_match with a null argument failed");
 }
 
 /*************   These functions individually test helpers of suggestions()   *************/
@@ -115,10 +125,12 @@ Test(suggestion, delete_s0) {
     trie_t *t = trie_new('\0');
     match_t **set = calloc(1, sizeof(match_t*));
 
+    trie_insert_string(t, "");
+
     int rc = suggestions(set, t, "", "k", 1, 1);
 
     cr_assert_eq(0, rc, "suggestions() failed");
-    cr_assert_eq(strcmp(set[0]->str, "k"), 0, "try_delete string failed");
+    cr_assert_eq(strcmp(set[0]->str, ""), 0, "try_delete string failed");
     cr_assert_eq(set[0]->edits_left, 0, "try_delete value failed");
 }
 
@@ -235,6 +247,9 @@ Test(suggestion, suggestions_s0) {
     int rc = suggestions(set, t, "", "cop", 1, 4);
     cr_assert_eq(0, rc, "suggestions() failed");
 
+    // Get the items in order since suggestions() doesn't sort
+    qsort(set, 4, sizeof(match_t*), cmp_match);
+
     cr_assert_eq(0, strncmp(set[0]->str, "8op", MAXLEN), 
                 "suggestions() first result incorrect");
     cr_assert_eq(0, strncmp(set[1]->str, "cops", MAXLEN), 
@@ -260,6 +275,9 @@ Test(suggestion, suggestions_s1) {
     int rc = suggestions(set, t, "", "small", 2, 3);
     cr_assert_eq(0, rc, "suggestions() failed");
 
+    // Get the items in order since suggestions() doesn't sort
+    qsort(set, 3, sizeof(match_t*), cmp_match);
+
     cr_assert_eq(0, strncmp(set[0]->str, "stall", MAXLEN), 
                 "suggestions() first result incorrect");
     cr_assert_eq(0, strncmp(set[1]->str, "drall", MAXLEN), 
@@ -281,6 +299,9 @@ Test(suggestion, suggestion_set_new_s0) {
     trie_insert_string(t, "o=9");
 
     match_t **set = suggestion_set_new(t, "one", 2, 4);
+
+    // Get the items in order since suggestions() doesn't sort
+    qsort(set, 4, sizeof(match_t*), cmp_match);
 
     cr_assert_eq(0, strncmp(set[0]->str, "none", MAXLEN), 
                 "suggestion_set_new() first result incorrect");
@@ -332,7 +353,7 @@ Test(suggestion, suggestion_set_first_n_f0) {
     set[1]->edits_left = 0;
     set[2]->edits_left = 0;
 
-    char **results = suggestion_set_first_n(set, 3);
+    char **results = suggestion_set_first_n(set, 2);
 
     cr_assert_eq(0, strncmp(results[0], "a", MAXLEN), 
                 "suggestion_set_first_n() first result incorrect");
@@ -375,6 +396,6 @@ Test(suggestion, suggestion_list_s1) {
                 "suggestion_list() first result incorrect");
     cr_assert_eq(0, strncmp(result[1], "afij4*8", MAXLEN), 
                 "suggestion_list() second result incorrect");
-    cr_assert_eq(0, strncmp(result[2], "flij4-8", MAXLEN), 
+    cr_assert_eq(0, strncmp(result[2], "antij4-8", MAXLEN), 
                 "suggestion_list() third result incorrect");
 }

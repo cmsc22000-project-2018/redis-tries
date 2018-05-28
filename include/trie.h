@@ -112,7 +112,6 @@ int trie_delete_string(trie_t *t, char *word);
     Returns:
      - 0 if c exists in t
      - 1 if it doesn't
-
 */
 int trie_char_exists(trie_t *t, char c); 
 

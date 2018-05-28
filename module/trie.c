@@ -29,6 +29,9 @@ struct trie {
 
     // parent trie for traversing backwards
     struct trie *parent;
+    
+    // list of characters that are contained in the node and its children
+    char *charlist;
 };
 
 /*
@@ -41,26 +44,33 @@ struct trie {
      - A pointer to the trie, or REDISMODULE_ERR if a pointer 
        cannot be allocated
 */
-struct trie *trie_new (char current)
+struct trie *trie_new(char current)
 {
     struct trie *t = RedisModule_Calloc(1, sizeof(struct trie));
+
     if (t == NULL) {
         fprintf(stderr, "Could not allocate memory for trie\n");
         return NULL;
     } 
+
     t->current = current;
     t->children = RedisModule_Calloc(256, sizeof(struct trie *));
+
     if (t->children == NULL) {
         fprintf(stderr, "Could not allocate memory for t->children\n");
         return NULL;
     }
+
     t->is_word = 0;
     t->parent = NULL;
+    t->charlist = RedisModule_Calloc(256, sizeof(char));
+
     return t;
 }
 
 /*
     Free an entire trie.
+
     Parameters:
      - t: A trie pointer
     
@@ -73,23 +83,26 @@ int trie_free(struct trie *t)
         for (int i = 0; i < 256; i++) {
             if (t->children[i] != NULL)
                 /* Called recursively because the entire trie 
-                 * and all of a trie's children are RedisModule_Calloc'ed 
+                   and all of a trie's children are RedisModule_Calloc'ed 
                  */
                 trie_free(t->children[i]); 
         }
-        /* Used because the data structures are 
-         * originally RedisModule_Calloc'ed 
-         */
-        RedisModule_Free(t); 
     }
+
+    RedisModeule_Free(t->charlist);
+    /* Used because the data structures are 
+       originally RedisModule_Calloc'ed 
+     */
+    RedisModule_Free(t); 
     return 0;
 }
 
 /*
     Creates new node in trie.
+
     Parameters:
-     - current: A char indicating the character of the node being added
      - t: A pointer to the trie where the node is to be added
+     - current: A char indicating the character of the node being added
     
     Returns:
      - 0 on success, 1 if an error occurs.
@@ -100,19 +113,22 @@ int trie_free(struct trie *t)
 int trie_add_node(struct trie *t, char current)
 {
     assert(t != NULL);
+
     /* Current is casted because the compiler 
     will throw unnecessary warnings otherwise */
-    unsigned c = current; 
+    unsigned int c = (int)current; 
+
     if (t->children[c] == NULL)
         t->children[c] = trie_new(current);
+
     return 0;  
 }
 
 /*
     Inserts word into trie.
     Parameters:
-     - word: An char array to be inserted into the given trie
      - t: A pointer to the given trie
+     - word: A char array to be inserted into the given trie
     
     Returns:
      - 0 on success, 1 if error occurs.
@@ -128,46 +144,128 @@ int trie_add_node(struct trie *t, char current)
 int trie_insert_string(struct trie *t, char *word)
 {
     assert(t != NULL);
+
     if (*word == '\0') {
         t->is_word = 1;
         return 0;
     } else {
+        int len = strlen(word);
+        int index;
+        for(int i = 0; i < len; i++) {
+            index = (int)word[i];
+            t->charlist[index] = word[i];
+        }
+
         char curr = *word;
+
         int rc = trie_add_node(t, curr);
         if (rc != 0) {
             fprintf(stderr, "Fail to add node");
             return 1;
         }
+
         word++;
         return trie_insert_string(t->children[curr], word);
     }
 }
 
-/* Searches for word in a trie. 
- *
- * Returns: 
- *  - 1 if word is found. 
- *  - 0 if word is not found at all.
- *  - -1 if word is found but end node's is_word is 0.
+/* 
+    Searches for a word/prefix in a trie t. 
+ 
+    Parameters:
+     - t: A pointer to the given trie
+     - word: A char array in which the end pointer is desired
+
+    Returns: 
+     - pointer to the last letter in the word/prefix if word/prefix is found. 
+     - NULL if word/prefix is not found.
  */
-int trie_search(struct trie *t, char* word)
+trie_t *trie_get_subtrie(trie_t *t, char* word)
 {
     int len;
-    struct trie* curr;
-    struct trie** next;
+    trie_t* curr;
+    trie_t** next;
+
     len = strlen(word);
     curr = t;
     next = t->children;
+    
+    /* 
+       Iterates through each character of the word
+       and goes to child of current trie with index
+       of the current character casted as an int
+     */
     for (int i = 0; i < len; i++) {
-        int j = (int) word[i];
+        int j = (int)word[i];
         curr = next[j];
         if (curr == NULL)
-            return NOT_IN_TRIE;
+            return NULL;
         next = next[j]->children;
     }
-    if (curr->is_word == 1) 
+
+    return curr;
+}
+
+/* 
+    Searches for word in a trie t. 
+ 
+    Parameters:
+     - t: A pointer to the given trie
+     - word: A char array that will be searched for in the trie 
+
+    Returns: 
+     - IN_TRIE if word is found. 
+     - NOT_IN_TRIE  if word is not found at all.
+     - PARTIAL_IN_TRIE if word is found but end node's is_word is 0.
+ */
+int trie_search(trie_t *t, char* word)
+{
+    trie_t *end = trie_get_subtrie(t, word);
+
+    if (end == NULL)
+        return NOT_IN_TRIE;
+
+    if (end->is_word == 1) 
         return IN_TRIE;
+
     return PARTIAL_IN_TRIE;
+}
+
+/* Helper function for trie_count_completion */
+int trie_count_completion_recursive(trie_t *t)
+{
+    int acc = 0;
+
+    if (t == NULL)
+        return acc;
+
+    if (t->is_word == 1)
+        acc++;
+
+    for (int i = 0; i < 256; i++)
+        acc += trie_count_completion_recursive(t->children[i]);
+
+    return acc;
+}
+
+/*
+    Count the number of different possible endings of a given prefix in a trie
+    
+    Parameters:
+     - pre: a string of the prefix converned
+     - t: a trie pointer
+    Returns:
+     - an integer of the number of endings if the prefix exists in the trie
+     - 0 if the prefix does not exist in the trie
+*/
+int trie_count_completion(trie_t *t, char *pre)
+{
+    trie_t *end = trie_get_subtrie(t, pre);
+
+    if (end == NULL)
+        return 0;
+
+    return trie_count_completion_recursive(end);
 }
 
 /* ===== "trie" type commands (Redis wrapper functions) ===== */
