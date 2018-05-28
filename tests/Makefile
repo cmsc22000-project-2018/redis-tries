@@ -5,7 +5,7 @@ RM = rm -f
 BIN = test-libtrie
 LDLIBS = -lcriterion -ltrie
 
-SRCS = test_trie.c
+SRCS = test_trie.c test_suggestion.c
 OBJS = $(SRCS:.c=.o)
 
 .PHONY: all
@@ -21,4 +21,4 @@ include $(SRCS:.c=.d)
 
 .PHONY: clean
 clean:
-	-${RM} ${BIN} ${OBJS} $(SRCS:.c=.d)
+	-${RM} ${BIN} ${OBJS} $(SRCS:.c=.d) $(OBJS)
