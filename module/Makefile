@@ -1,5 +1,6 @@
 LDFLAGS = -shared -Bsymbolic
 CFLAGS = -I../RedisModulesSDK/ -fPIC -g -lc -lm -W -Wall -fno-common -ggdb -std=gnu99 -O2
+
 CC = gcc
 SRCS = trie.c
 OBJS = $(SRCS:.c=.o)
