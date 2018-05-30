@@ -10,7 +10,7 @@
 #include "utils.h"
 
 /* See trie.h */
-trie_t *trie_new(char current)
+trie_t *trie_new(trie_t *parent, char current)
 {
     trie_t *t = calloc(1,sizeof(trie_t));
     
@@ -28,7 +28,7 @@ trie_t *trie_new(char current)
     }
 
     t->is_word = 0;
-    t->parent = NULL;
+    t->parent = parent;
 
     return t;
 }
@@ -53,7 +53,7 @@ int trie_add_node(trie_t *t, char current)
     unsigned c = (unsigned) current;
 
     if (t->children[c] == NULL)
-        t->children[c] = trie_new(current);
+        t->children[c] = trie_new(t,current);
 
     return 0;  
 

@@ -4,22 +4,35 @@
 #include <string.h>
 #include "trie.h"
 
-Test(trie, new)
+Test(trie, new_no_parent)
 {
     trie_t *t;
 
-    t = trie_new('c');
+    t = trie_new(NULL, 'c');
 
     cr_assert_not_null(t, "new_trie() failed to allocate memory");
     cr_assert_eq(t->current, 'c', "new_trie() failed to set current");
     cr_assert_eq(t->is_word, 0, "new_trie() failed to set is_word");
 }
 
+Test(trie, new_with_parent)
+{
+    trie_t *p, *c;
+
+    p = trie_new(NULL, 'p');
+    c = trie_new(p,'c');
+
+    cr_assert_not_null(c, "new_trie() failed to allocate memory");
+    cr_assert_eq(c->current, 'c', "new_trie() failed to set current");
+    cr_assert_eq(c->is_word, 0, "new_trie() failed to set is_word");
+    cr_assert_eq(c->parent->current, 'p', "new_trie() failed to set parent");
+
+}
 
 Test(trie, trie_add_node_exists)
 {
     char n = 'n';
-    trie_t *t = trie_new('\0');
+    trie_t *t = trie_new(NULL,'\0');
     int rc = trie_add_node(t,n);
 
     cr_assert_eq(rc,0,"add_node failed");
@@ -31,7 +44,7 @@ Test(trie, trie_add_node_exists)
 Test(trie, trie_add_node_new)
 {
     char n = 'n';
-    trie_t *t = trie_new('\0');
+    trie_t *t = trie_new(NULL,'\0');
 
     int fc = trie_add_node(t,n);
     cr_assert_eq(fc,0,"add_node failed");
@@ -49,7 +62,7 @@ Test(trie, insert_string)
     char* s1 = "an";
     char* s2 = "anti";
     char* s3 = "ants";
-    trie_t *t = trie_new('\0');
+    trie_t *t = trie_new(NULL,'\0');
 
     int r1 = trie_insert_string(t,s1);
     cr_assert_eq(r1,0,"insert_string failed");   
@@ -76,7 +89,7 @@ Test(trie, free)
     trie_t *t;
     int rc;
 
-    t = trie_new('\0');
+    t = trie_new(NULL,'\0');
 
     cr_assert_not_null(t, "new_trie() failed to allocate memory");
 
@@ -92,7 +105,7 @@ Test(trie, empty_search)
     trie_t *t;
     int found;
     
-    t = trie_new('\0');
+    t = trie_new(NULL,'\0');
     cr_assert_not_null(t, "new_trie() failed");
 
     found = trie_search(t,"b");
@@ -106,7 +119,7 @@ void singleton_search(char* str, int expected)
     trie_t *t;
     int inserted, found;
 
-    t = trie_new('\0');
+    t = trie_new(NULL,'\0');
     cr_assert_not_null(t, "new_trie() failed");
 
     inserted = trie_insert_string(t,"CS220");
@@ -151,7 +164,7 @@ void twenty_search(char* str, int expected)
     trie_t *t;
     int inserted, found;
     char* words[21] = {"Ever", "loved", "someone", "so", "much,", "you", "would", "do", "anything", "for", "them?", "Yeah,", "well,", "make", "that", "yourself", "and", "whatever", "the", "hell", "want."}; // quote by Harvey Specter 
-    t = trie_new('\0');
+    t = trie_new(NULL,'\0');
     cr_assert_not_null(t, "new_trie() failed");
 
     for (int i=0; i<21; i++) {
@@ -208,7 +221,7 @@ void search_completion (char* pre, int expected){
     trie_t *t;
     int inserted, number;
     char* words[8] = {"an","ant","anti", "antique", "antiquity", "antelope", "antman","anthropology"}; 
-    t = trie_new('\0');
+    t = trie_new(NULL,'\0');
     cr_assert_not_null(t, "new_trie() failed");
 
     for (int i=0; i<8; i++) {

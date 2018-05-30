@@ -29,7 +29,7 @@ struct trie_t {
      - A pointer to the trie, or NULL if a pointer 
        cannot be allocated
 */
-trie_t *trie_new (char current);
+trie_t *trie_new (trie_t *parent, char current);
 
 /*
     Free an entire trie.
