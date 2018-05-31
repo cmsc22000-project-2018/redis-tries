@@ -89,7 +89,7 @@ int trie_free(struct trie *t)
         }
     }
 
-    RedisModeule_Free(t->charlist);
+    RedisModule_Free(t->charlist);
     /* Used because the data structures are 
        originally RedisModule_Calloc'ed 
      */
@@ -156,7 +156,8 @@ int trie_insert_string(struct trie *t, char *word)
             t->charlist[index] = word[i];
         }
 
-        char curr = *word;
+        char curr = word[0];
+	index = (int)curr;
 
         int rc = trie_add_node(t, curr);
         if (rc != 0) {
@@ -165,12 +166,12 @@ int trie_insert_string(struct trie *t, char *word)
         }
 
         word++;
-        return trie_insert_string(t->children[curr], word);
+        return trie_insert_string(t->children[index], word);
     }
 }
 
 /* 
-    Searches for a word/prefix in a trie t. 
+    Searches for a word/prefix in a trie. 
  
     Parameters:
      - t: A pointer to the given trie
@@ -180,11 +181,11 @@ int trie_insert_string(struct trie *t, char *word)
      - pointer to the last letter in the word/prefix if word/prefix is found. 
      - NULL if word/prefix is not found.
  */
-trie_t *trie_get_subtrie(trie_t *t, char* word)
+struct trie *trie_get_subtrie(struct trie *t, char* word)
 {
     int len;
-    trie_t* curr;
-    trie_t** next;
+    struct trie* curr;
+    struct trie** next;
 
     len = strlen(word);
     curr = t;
@@ -207,7 +208,7 @@ trie_t *trie_get_subtrie(trie_t *t, char* word)
 }
 
 /* 
-    Searches for word in a trie t. 
+    Searches for word in a trie. 
  
     Parameters:
      - t: A pointer to the given trie
@@ -218,9 +219,9 @@ trie_t *trie_get_subtrie(trie_t *t, char* word)
      - NOT_IN_TRIE  if word is not found at all.
      - PARTIAL_IN_TRIE if word is found but end node's is_word is 0.
  */
-int trie_search(trie_t *t, char* word)
+int trie_search(struct trie *t, char* word)
 {
-    trie_t *end = trie_get_subtrie(t, word);
+    struct trie *end = trie_get_subtrie(t, word);
 
     if (end == NULL)
         return NOT_IN_TRIE;
@@ -232,7 +233,7 @@ int trie_search(trie_t *t, char* word)
 }
 
 /* Helper function for trie_count_completion */
-int trie_count_completion_recursive(trie_t *t)
+int trie_count_completion_recursive(struct trie *t)
 {
     int acc = 0;
 
@@ -258,9 +259,9 @@ int trie_count_completion_recursive(trie_t *t)
      - an integer of the number of endings if the prefix exists in the trie
      - 0 if the prefix does not exist in the trie
 */
-int trie_count_completion(trie_t *t, char *pre)
+int trie_count_completion(struct trie *t, char *pre)
 {
-    trie_t *end = trie_get_subtrie(t, pre);
+    struct trie *end = trie_get_subtrie(t, pre);
 
     if (end == NULL)
         return 0;
