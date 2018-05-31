@@ -23,9 +23,9 @@ struct trie_t {
     
     /* Parent trie_t for traversing backwards */
     trie_t *parent;
-        // parent trie_t for traversing backwards
+    
+    /* List of characters that are contained in the node and its children */
     char *charlist;
-        // list of characters that are contained in the node and its children
 };
 
 /*
@@ -89,8 +89,7 @@ int trie_add_node(trie_t *t, char current);
 int trie_insert_string(trie_t *t, char *word);
 
 /*
-    Checks if a char exists in a trie
-
+    Checks if a char exists in a trie 
     Parameters:
      - t: A pointer to the given trie
      - c: The character we want to check
@@ -102,7 +101,7 @@ int trie_insert_string(trie_t *t, char *word);
 int trie_char_exists(trie_t *t, char c); 
 
 /* 
-    Searches for a word/prefix in a trie t. 
+    Searches for a word/prefix in a trie 
  
     Parameters:
      - t: A pointer to the given trie
@@ -114,7 +113,7 @@ int trie_char_exists(trie_t *t, char c);
 trie_t *trie_get_subtrie(trie_t *t, char* word);
 
 /* 
-    Searches for word in a trie t. 
+    Searches for word in a trie 
  
     Parameters:
      - t: A pointer to the given trie

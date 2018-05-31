@@ -21,10 +21,10 @@ before_install:
     
 jobs:
   include:
-    - stage: basic implementation build
+    - stage: build
       script: make all
       after_script: echo "Finished Building Implementation Library"
-    - stage: basic implementation test
+    - stage: test
       script:
           - make
           - make -C tests/

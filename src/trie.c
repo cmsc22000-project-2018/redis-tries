@@ -38,7 +38,7 @@ int trie_free(trie_t *t)
 {
     assert(t != NULL);
 
-    for (int i = 0; i < 256; i++) {
+    for (int i = 0; i < 256; i++){
         if (t->children[i] != NULL)
             trie_free(t->children[i]);
     }
@@ -71,6 +71,11 @@ int trie_insert_string(trie_t *t, char *word)
     } else {
         int len = strlen(word);
         int index;
+        /* 
+           For loop that goes through the string
+           and adds all the unique characters to the
+           trie's wordlist field
+         */
         for (int i = 0; i < len; i++) {
             index = (int)word[i];
             t->charlist[index] = word[i];
@@ -130,7 +135,6 @@ trie_t *trie_get_subtrie(trie_t *t, char* word)
     return curr;
 }
 
-
 int trie_search(trie_t *t, char* word)
 {
     trie_t *end = trie_get_subtrie(t, word);
@@ -140,6 +144,7 @@ int trie_search(trie_t *t, char* word)
 
     if (end->is_word == 1) 
         return IN_TRIE;
+  
     return PARTIAL_IN_TRIE;
 }
 
@@ -168,6 +173,3 @@ int trie_count_completion(trie_t *t, char *pre)
 
 	return trie_count_completion_recursive(end);
 }
-
-
-
