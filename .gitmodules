@@ -1,0 +1,6 @@
+[submodule "RedisModulesSDK"]
+	path = RedisModulesSDK
+	url = https://github.com/RedisLabs/RedisModulesSDK.git
+[submodule "hiredis"]
+	path = hiredis
+	url = https://github.com/redis/hiredis.git
