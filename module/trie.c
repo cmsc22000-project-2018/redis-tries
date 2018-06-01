@@ -170,6 +170,43 @@ int trie_search(struct trie *t, char* word)
     return PARTIAL_IN_TRIE;
 }
 
+/* Helper function for trie_count_completion */
+int trie_count_completion_recursive(struct trie *t)
+{
+    int acc = 0;
+
+    if (t == NULL)
+        return acc;
+
+    if (t->is_word == 1)
+        acc++;
+
+    for (int i = 0; i < 256; i++)
+        acc += trie_count_completion_recursive(t->children[i]);
+
+    return acc;
+}
+
+/*
+    Count the number of different possible endings of a given prefix in a trie
+    
+    Parameters:
+     - pre: a string of the prefix converned
+     - t: a trie pointer
+    Returns:
+     - an integer of the number of endings if the prefix exists in the trie
+     - 0 if the prefix does not exist in the trie
+*/
+int trie_count_completion(struct trie *t, char *pre)
+{
+    struct trie *end = trie_get_subtrie(t, pre);
+
+    if (end == NULL)
+        return 0;
+
+    return trie_count_completion_recursive(end);
+}
+
 /* ===== "trie" type commands (Redis wrapper functions) ===== */
 
 /* TRIE.INSERT key value */
@@ -252,6 +289,37 @@ int TrieContains_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv,
     return REDISMODULE_OK;
 }
 
+/* TRIE.COMPLETIONS key value */
+int TrieCompletions_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, 
+        int argc) {
+    RedisModule_AutoMemory(ctx); /* Use automatic memory management. */
+
+    if (argc != 3) return RedisModule_WrongArity(ctx);
+
+    RedisModuleKey *key = RedisModule_OpenKey(ctx, argv[1],
+        REDISMODULE_READ|REDISMODULE_WRITE);
+    int type = RedisModule_KeyType(key);
+    if (type == REDISMODULE_KEYTYPE_EMPTY) {
+        return RedisModule_ReplyWithError(ctx, "ERR invalid key: not an existing trie");
+    }
+    else if (RedisModule_ModuleTypeGetType(key) != trie)
+    {
+        return RedisModule_ReplyWithError(ctx, REDISMODULE_ERRORMSG_WRONGTYPE);
+    }
+    size_t dummy;
+    char *temp = RedisModule_StringPtrLen(argv[2], &dummy);
+
+    struct trie *t;
+    t = RedisModule_ModuleTypeGetValue(key);
+
+    /* Check for number of completions */
+    int c = trie_count_completion(t, temp);
+
+    RedisModule_ReplyWithLongLong(ctx, c); 
+    RedisModule_ReplicateVerbatim(ctx);
+    return REDISMODULE_OK;    
+}
+
 /* ===== "trie" type methods (Redis data saving and entry functions) ===== */
 
 /* This function must be present on each Redis module. It is used in order to
@@ -287,6 +355,10 @@ int RedisModule_OnLoad(RedisModuleCtx *ctx, RedisModuleString **argv, int argc) 
     if (RedisModule_CreateCommand(ctx, "trie.contains",
         TrieContains_RedisCommand, "readonly", 1, 1, 1) == REDISMODULE_ERR)
         return REDISMODULE_ERR;
+
+    if (RedisModule_CreateCommand(ctx, "trie.completions",
+        TrieCompletions_RedisCommand, "readonly", 1, 1, 1) == REDISMODULE_ERR)
+        return REDISMODULE_ERR;    
 
     return REDISMODULE_OK;
 }
