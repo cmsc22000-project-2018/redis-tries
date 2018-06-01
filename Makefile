@@ -2,12 +2,12 @@ CC = gcc
 AR = ar 
 CFLAGS = -std=c99 -fPIC -Wall -Wextra -O2 -g -I./include/
 LDFLAGS = -shared
-RM = rm -f
+RM = rm -rf
 DYNAMIC_LIB = libtrie.so
 LIBS = ${DYNAMIC_LIB}
 LDLIBS = -lm
 
-SRCS = src/trie.c 
+SRCS = src/trie.c src/suggestion.c
 OBJS = $(SRCS:.c=.o)
 
 .PHONY: all
@@ -16,13 +16,18 @@ all: ${LIBS}
 $(DYNAMIC_LIB): $(OBJS)
 	$(CC) -shared -o $@ $^ $(LDLIBS)
 
+main: $(OBJS) main.o
+	$(CC) $(CFLAGS) $(SRCS) main.c -o main
+
 $(SRCS:.c=.d):%.d:%.c
 	$(CC) $(CFLAGS) -MM $< -MT $(patsubst %.d,%.o,$@) > $@
 
--include $(SRCS:.c=.d)
+tests: $(LIBS)
+	make -C ./tests
+
+include $(SRCS:.c=.d)
 
 .PHONY: clean tests
 clean:
 	-${RM} ${LIBS} ${OBJS} $(SRCS:.c=.d)
-
-
+	make -C ./tests clean
