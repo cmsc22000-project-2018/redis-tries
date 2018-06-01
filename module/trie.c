@@ -6,7 +6,7 @@
 #define NOT_IN_TRIE 0 
 #define PARTIAL_IN_TRIE (-1)
 
-#include "../redismodule.h"
+#include "redismodule.h"
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
@@ -170,8 +170,8 @@ int trie_insert_string(struct trie *t, char *word)
 }
 
 /* 
-    Searches for a word/prefix in a trie t. 
- 
+    Searches for a word/prefix in a trie. 
+    
     Parameters:
      - t: A pointer to the given trie
      - word: A char array in which the end pointer is desired
@@ -180,16 +180,16 @@ int trie_insert_string(struct trie *t, char *word)
      - pointer to the last letter in the word/prefix if word/prefix is found. 
      - NULL if word/prefix is not found.
  */
-trie_t *trie_get_subtrie(trie_t *t, char* word)
+struct trie *trie_get_subtrie(struct trie *t, char* word)
 {
     int len;
-    trie_t* curr;
-    trie_t** next;
+    struct trie* curr;
+    struct trie** next;
 
     len = strlen(word);
     curr = t;
     next = t->children;
-    
+
     /* 
        Iterates through each character of the word
        and goes to child of current trie with index
@@ -218,9 +218,9 @@ trie_t *trie_get_subtrie(trie_t *t, char* word)
      - NOT_IN_TRIE  if word is not found at all.
      - PARTIAL_IN_TRIE if word is found but end node's is_word is 0.
  */
-int trie_search(trie_t *t, char* word)
+int trie_search(struct trie *t, char* word)
 {
-    trie_t *end = trie_get_subtrie(t, word);
+    struct trie *end = trie_get_subtrie(t, word);
 
     if (end == NULL)
         return NOT_IN_TRIE;
@@ -231,8 +231,7 @@ int trie_search(trie_t *t, char* word)
     return PARTIAL_IN_TRIE;
 }
 
-/* Helper function for trie_count_completion */
-int trie_count_completion_recursive(trie_t *t)
+int trie_count_completion_recursive(struct trie *t)
 {
     int acc = 0;
 
@@ -258,9 +257,9 @@ int trie_count_completion_recursive(trie_t *t)
      - an integer of the number of endings if the prefix exists in the trie
      - 0 if the prefix does not exist in the trie
 */
-int trie_count_completion(trie_t *t, char *pre)
+int trie_count_completion(struct trie *t, char *pre)
 {
-    trie_t *end = trie_get_subtrie(t, pre);
+    struct trie *end = trie_get_subtrie(t, pre);
 
     if (end == NULL)
         return 0;
@@ -350,6 +349,37 @@ int TrieContains_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv,
     return REDISMODULE_OK;
 }
 
+/* TRIE.COMPLETIONS key value */
+int TrieCompletions_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, 
+        int argc) {
+    RedisModule_AutoMemory(ctx); /* Use automatic memory management. */
+
+    if (argc != 3) return RedisModule_WrongArity(ctx);
+
+    RedisModuleKey *key = RedisModule_OpenKey(ctx, argv[1],
+        REDISMODULE_READ|REDISMODULE_WRITE);
+    int type = RedisModule_KeyType(key);
+    if (type == REDISMODULE_KEYTYPE_EMPTY) {
+        return RedisModule_ReplyWithError(ctx, "ERR invalid key: not an existing trie");
+    }
+    else if (RedisModule_ModuleTypeGetType(key) != trie)
+    {
+        return RedisModule_ReplyWithError(ctx, REDISMODULE_ERRORMSG_WRONGTYPE);
+    }
+    size_t dummy;
+    char *temp = RedisModule_StringPtrLen(argv[2], &dummy);
+
+    struct trie *t;
+    t = RedisModule_ModuleTypeGetValue(key);
+
+    /* Check for number of completions */
+    int c = trie_count_completion(t, temp);
+
+    RedisModule_ReplyWithLongLong(ctx, c); 
+    RedisModule_ReplicateVerbatim(ctx);
+    return REDISMODULE_OK;    
+}
+
 /* ===== "trie" type methods (Redis data saving and entry functions) ===== */
 
 /* This function must be present on each Redis module. It is used in order to
@@ -385,6 +415,10 @@ int RedisModule_OnLoad(RedisModuleCtx *ctx, RedisModuleString **argv, int argc) 
     if (RedisModule_CreateCommand(ctx, "trie.contains",
         TrieContains_RedisCommand, "readonly", 1, 1, 1) == REDISMODULE_ERR)
         return REDISMODULE_ERR;
+
+    if (RedisModule_CreateCommand(ctx, "trie.completions",
+        TrieCompletions_RedisCommand, "readonly", 1, 1, 1) == REDISMODULE_ERR)
+        return REDISMODULE_ERR;    
 
     return REDISMODULE_OK;
 }
