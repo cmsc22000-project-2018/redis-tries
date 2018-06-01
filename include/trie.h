@@ -24,7 +24,7 @@ struct trie_t {
     /* Parent trie_t for traversing backwards */
     trie_t *parent;
     
-    /* List of characters that are contained in the node and its children */
+    /* Array of characters that are contained in the node and its children */
     char *charlist;
 };
 

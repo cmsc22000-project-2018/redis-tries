@@ -22,7 +22,7 @@ typedef struct {
  * NOTE- awaiting the actual function from support tools
  * 
  * Parameters: 
- *  - t: A tire. Must point to a trie allocated with trie_new
+ *  - t: A trie. Must point to a trie allocated with trie_new
  *  - s: A string. The prefix to check
  * 
  * Returns:

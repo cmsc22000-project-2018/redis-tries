@@ -151,7 +151,7 @@ int trie_insert_string(struct trie *t, char *word)
     } else {
         int len = strlen(word);
         int index;
-        for(int i = 0; i < len; i++) {
+        for (int i = 0; i < len; i++) {
             index = (int)word[i];
             t->charlist[index] = word[i];
         }
