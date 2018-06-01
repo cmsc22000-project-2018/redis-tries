@@ -143,6 +143,43 @@ int trie_insert_string(struct trie *t, char *word)
     }
 }
 
+/* 
+    Searches for a word/prefix in a trie. 
+ 
+    Parameters:
+     - t: A pointer to the given trie
+     - word: A char array in which the end pointer is desired
+     
+    Returns: 
+     - pointer to the last letter in the word/prefix if word/prefix is found. 
+     - NULL if word/prefix is not found.
+ */
+struct trie *trie_get_subtrie(struct trie *t, char* word)
+{
+    int len;
+    struct trie* curr;
+    struct trie** next;
+
+    len = strlen(word);
+    curr = t;
+    next = t->children;
+
+    /* 
+       Iterates through each character of the word
+       and goes to child of current trie with index
+       of the current character casted as an int
+     */
+    for (int i = 0; i < len; i++) {
+        int j = (int)word[i];
+        curr = next[j];
+        if (curr == NULL)
+            return NULL;
+        next = next[j]->children;
+    }
+
+    return curr;
+}
+
 /* Searches for word in a trie. 
  *
  * Returns: 
@@ -152,21 +189,14 @@ int trie_insert_string(struct trie *t, char *word)
  */
 int trie_search(struct trie *t, char* word)
 {
-    int len;
-    struct trie* curr;
-    struct trie** next;
-    len = strlen(word);
-    curr = t;
-    next = t->children;
-    for (int i = 0; i < len; i++) {
-        int j = (int) word[i];
-        curr = next[j];
-        if (curr == NULL)
-            return NOT_IN_TRIE;
-        next = next[j]->children;
-    }
-    if (curr->is_word == 1) 
+    struct trie *end = trie_get_subtrie(t, word);
+
+    if (end == NULL)
+        return NOT_IN_TRIE;
+
+    if (end->is_word == 1) 
         return IN_TRIE;
+
     return PARTIAL_IN_TRIE;
 }
 
