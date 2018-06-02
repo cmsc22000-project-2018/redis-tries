@@ -177,11 +177,7 @@ int try_swap(match_t **set, trie_t * t, char *prefix, char *suffix, int edits_le
     // Save some space now that we're done
     free(new_prefix);
 
-    if (rc != EXIT_SUCCESS) {
-        return EXIT_FAILURE;
-    }
-
-    return EXIT_SUCCESS;
+    return rc;
 }
 
 // Helper function for suggestions that tries to insert a character to the end of a prefix
