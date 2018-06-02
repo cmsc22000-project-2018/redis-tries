@@ -18,7 +18,7 @@ The trie_t struct is composed of:
 	2. trie_t \*children[ALPHABET_SIZE] // ALPHABET_SIZE is 256 for all possible characters.
 	3. int is_word // If is_word is 1, indicates that this is the end of a word. Otherwise 0.
 	4. trie_t \*parent // Parent trie_t for traversing backwards
-  5. char \*charlist // Array of characters that are contained in the node and its children 
+  	5. char \*charlist // Array of characters that are contained in the node and its children 
 
 The Operations for trie_t are as follows:
 1. \*trie_t trie_new(char current)
