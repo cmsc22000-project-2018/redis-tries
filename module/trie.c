@@ -864,7 +864,6 @@ int TrieInsert_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv,
     /* Insert the new string. */
     for (int i = 0; i < nstrings; i++) {
         total += trie_insert_string(t, temp[i]);
-        RedisModule_Free(temp[i]);
     }
     RedisModule_Free(temp);
 
@@ -937,7 +936,6 @@ int TrieApproxMatch_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv,
         RedisModule_StringToLongLong(argv[3], &medits);
         RedisModule_StringToLongLong(argv[4], &amount);
     }
-
     /* Check if arguments are valid */
     if (amount <= 0) {
         return RedisModule_ReplyWithError(ctx, "ERR invalid amount: cannot be less than 1");
@@ -949,13 +947,18 @@ int TrieApproxMatch_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv,
     /* Get the trie */
     struct trie *t;
     t = RedisModule_ModuleTypeGetValue(key);
-
     /* Find the approximate matches */
     char** matches = suggestion_list(t, temp, medits, amount);
 
     RedisModule_ReplyWithArray(ctx, amount);
     for (int i = 0; i < amount; i++) {
-        RedisModule_ReplyWithSimpleString(ctx, matches[i]);
+    	if (matches[i] == NULL) {
+    		printf("here5");
+    		RedisModule_ReplyWithNull(ctx);
+    	}
+    	else {
+        	RedisModule_ReplyWithSimpleString(ctx, matches[i]);
+        }
     }
     RedisModule_ReplicateVerbatim(ctx);
     return REDISMODULE_OK;  
