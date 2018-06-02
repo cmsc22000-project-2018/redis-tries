@@ -379,7 +379,7 @@ match_t **suggestion_set_new(trie_t *t, char *str, int max_edits, int n) {
 
     int i;
 
-    // We'll allocate space for as many matches so we can make sure we get the closest matches
+    // We'll allocate space for as many matches as we need so we can make sure we get the closest matches
     match_t **set = (match_t **)calloc(n, sizeof(match_t*));
 
     if (set == NULL) {

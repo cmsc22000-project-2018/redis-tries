@@ -48,10 +48,10 @@ int has_children(trie_t *t, char *s);
 int cmp_match(const void* a, const void* b);
 
 /*
- * Helper function for suggestions(). Adds or updates a new match_t to a list of match_t's
+ * Helper function for suggestions(). Adds or updates a new match_t to an array of match_t*'s
  * 
  * Parameters:
- *  - set: A list of match_t's
+ *  - set: An array of match_t's
  *  - t: A trie. Must point to a dictionary allocated with trie_new
  *  - s: The string to add
  *  - edits_left: The maximum levenshtein distance a word can be from prefix+suffix
@@ -67,7 +67,7 @@ int attempt_add(match_t **set, trie_t *t, char *s, int edits_left, int n);
  * For more information on approx matching: https://www.wikiwand.com/en/Approximate_string_matching
  * 
  * Parameters:
- *  - set: A list of match_t's
+ *  - set: An array of match_t*'s
  *  - t: A trie. Must point to a trie allocated with trie_new
  *  - prefix: A prefix of a word. Must be contained in a dictionary or ""
  *  - suffix: A suffix of a word. Can also be ""
@@ -80,7 +80,7 @@ int attempt_add(match_t **set, trie_t *t, char *s, int edits_left, int n);
 int suggestions(match_t **set, trie_t *t, char *prefix, char *suffix, int edits_left, int n);
 
 /*
- * Creates list of match_t's of spelling suggestions for a word using suggestions()
+ * Creates array of match_t*'s of spelling suggestions for a word using suggestions()
  * 
  * Parameters:
  *  - t: A trie. Must point to a trie allocated with trie_new
@@ -89,17 +89,17 @@ int suggestions(match_t **set, trie_t *t, char *prefix, char *suffix, int edits_
  *  - n: The length of set (number of matches in the set)
  * 
  * Returns:
- *  - A pointer to the list of match_t's containing the closest n words and their respective distance
+ *  - A pointer to the array of match_t*'s containing the closest n words and their respective distance
  *  - NULL if there was an error
  */
 match_t** suggestion_set_new(trie_t *t, char *str, int max_edits, int n);
 
 /*
- * Takes a list of match_t's, sorts it, takes the highest n scoring strings out of it by
+ * Takes an array of match_t*'s, sorts it, takes the highest n scoring strings out of it by
  * stripping off the match_t wrapper
  * 
  * Parameters:
- *  - set: A list of match_t's
+ *  - set: An array of match_t*'s
  *  - n: the number of strings to return
  * 
  * Returns:
@@ -110,8 +110,8 @@ match_t** suggestion_set_new(trie_t *t, char *str, int max_edits, int n);
 char** suggestion_set_first_n(match_t **set, int n);
 
 /*
- * Returns the n closest words to a given string in a trie. First creates a match_t list with 
- * suggestion_set_new(), then passes it into suggestion_set_first_n() to sort it and strip the 
+ * Returns the n closest words to a given string in a trie. First creates a match_t* array with 
+ * suggestion_set_new(), then passes it into suggestion_set_first_n() to sort it and strips the 
  * strings of their match_t wrappers.
  * 
  * Parameters:
