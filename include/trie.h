@@ -7,6 +7,8 @@
 #define NOT_IN_TRIE 0 
 #define PARTIAL_IN_TRIE (-1)
 
+#include <stdbool.h>
+
 typedef struct trie_t trie_t;
 struct trie_t {
     /* The first trie_t will be '/0' for any Trie. */
@@ -23,6 +25,9 @@ struct trie_t {
     
     /* Parent trie_t for traversing backwards */
     trie_t *parent;
+    
+    /* Array of characters that are contained in the node and its children */
+    char *charlist;
 };
 
 /*
@@ -85,8 +90,20 @@ int trie_add_node(trie_t *t, char current);
 */
 int trie_insert_string(trie_t *t, char *word);
 
+/*
+    Checks if a char exists in a trie 
+    Parameters:
+     - t: A pointer to the given trie
+     - c: The character we want to check
+
+    Returns:
+     - EXIT_SUCCESS if c exists in t
+     - EXIT_FAILURE if it doesn't
+*/
+int trie_char_exists(trie_t *t, char c); 
+
 /* 
-    Searches for a word/prefix in a trie t. 
+    Searches for a word/prefix in a trie 
  
     Parameters:
      - t: A pointer to the given trie
@@ -98,7 +115,7 @@ int trie_insert_string(trie_t *t, char *word);
 trie_t *trie_get_subtrie(trie_t *t, char* word);
 
 /* 
-    Searches for word in a trie t. 
+    Searches for word in a trie 
  
     Parameters:
      - t: A pointer to the given trie

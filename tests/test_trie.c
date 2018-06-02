@@ -311,6 +311,72 @@ Test(count_completion, prefix_in_trie_5)
     search_completion("antiq", 2);
 }
 
+/* Checking if trie_char_exists() can check for a char not in trie */
+Test(trie, trie_char_exists_failure0) {
+    trie_t *t;
+    int rc;
+
+    t = trie_new('\0');
+
+    rc = trie_char_exists(t, 'c');
+
+    cr_assert_eq(rc, EXIT_FAILURE, "trie_char_exists succeeded when it shouldn't have");
+}
+
+/* Checking if trie_char_exists() can check for a char not in trie */
+Test(trie, trie_char_exists_failure1) {
+    trie_t *t;
+    int rc;
+
+    t = trie_new('\0');
+
+    trie_insert_string(t, "candy");
+
+    rc = trie_char_exists(t, '7');
+
+    cr_assert_eq(rc, EXIT_FAILURE, "trie_char_exists succeeded when it shouldn't have");
+}
+
+/* Checking if trie_char_exists() can check for a char in trie */
+Test(trie, trie_char_exists_success0) {
+    trie_t *t;
+    int rc;
+
+    t = trie_new('\0');
+
+    trie_insert_string(t, "jkl538-yfv");
+
+    rc = trie_char_exists(t, '-');
+
+    cr_assert_eq(rc, EXIT_SUCCESS, "trie_char_exists failed when it should have succeeded");
+}
+
+/* Checking if trie_char_exists() can check for a char in trie */
+Test(trie, trie_char_exists_success1) {
+    trie_t *t;
+    int rc;
+
+    t = trie_new('\0');
+
+    trie_insert_string(t, "candy");
+
+    rc = trie_char_exists(t, 'd');
+
+    cr_assert_eq(rc, EXIT_SUCCESS, "trie_char_exists failed when it should have succeeded");
+}
+
+/* Checking if trie_char_exists() can check for a terminal character in trie */
+Test(trie, trie_chars_exists_null) {
+    trie_t *t;
+    int rc;
+
+    t = trie_new('\0');
+
+    rc = trie_char_exists(t, '\0');
+
+    cr_assert_eq(rc, EXIT_FAILURE, "trie_char_exists succeeded when it shouldn't have");
+}
+
 /* 
    Integration test using trie_new, trie_insert_string (which uses 
    trie_add_node), trie_search, and trie_free 
