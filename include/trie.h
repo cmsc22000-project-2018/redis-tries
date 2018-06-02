@@ -7,6 +7,8 @@
 #define NOT_IN_TRIE 0 
 #define PARTIAL_IN_TRIE (-1)
 
+#include <stdbool.h>
+
 typedef struct trie_t trie_t;
 struct trie_t {
     /* The first trie_t will be '/0' for any Trie. */

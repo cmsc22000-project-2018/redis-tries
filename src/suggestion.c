@@ -13,9 +13,13 @@
 #include "suggestion.h"
 #include "trie.h"
 
-int has_children(trie_t *t, char *s) {
+bool has_children(trie_t *t, char *s) {
     
-    return !trie_search(t, s);
+    if (trie_search(t, s) == NOT_IN_TRIE) {
+        return false;
+    }
+
+    return true;
 }
 
 /* See suggestion.h */
@@ -38,7 +42,7 @@ int cmp_match(const void* a, const void* b) {
     }
 
     // Otherwise sort lexographically
-    return strcmp(aa->str,bb->str);
+    return strncmp(aa->str, bb->str, MAXLEN);
 }
 
 // Helper function for suggestions that just moves on to the next character
@@ -57,7 +61,7 @@ int move_on(match_t **set, trie_t *t, char *prefix, char *suffix, int edits_left
 
     new_prefix[len] = suffix[0];
 
-    if (has_children(t, new_prefix) == EXIT_SUCCESS) {
+    if (has_children(t, new_prefix) == true) {
 
         // Move on to the next character, don't use up an edit
         rc = suggestions(set, t, new_prefix, suffix + 1, edits_left, n);
@@ -66,11 +70,7 @@ int move_on(match_t **set, trie_t *t, char *prefix, char *suffix, int edits_left
     // Save some space now that we're done
     free(new_prefix);
 
-    if (rc != EXIT_SUCCESS) {
-        return EXIT_FAILURE;
-    }
-
-    return EXIT_SUCCESS;
+    return rc;
 }
 
 // Helper function for suggestions that tries to remove the first character of the suffix
@@ -80,17 +80,13 @@ int try_delete(match_t **set, trie_t *t, char *prefix, char *suffix, int edits_l
 
     // Don't need to copy the string over as we aren't changing the prefix
 
-    if (has_children(t, prefix) == EXIT_SUCCESS) {
+    if (has_children(t, prefix) == true) {
 
         // Adding 1 to the suffix pointer will essentially delete the first character
         rc = suggestions(set, t, prefix, suffix + 1, edits_left - 1, n);
     }
 
-    if (rc != EXIT_SUCCESS) {
-        return EXIT_FAILURE;
-    }
-
-    return EXIT_SUCCESS;
+    return rc;
 }
 
 // Helper function for suggestions that tries to replace the first character in the suffix and move it to the prefix
@@ -126,7 +122,7 @@ int try_replace(match_t **set, trie_t *t, char *prefix, char *suffix, int edits_
                 new_prefix[len] = c;
                 new_prefix[len + 1] = '\0';
 
-                if (has_children(t, new_prefix) == EXIT_SUCCESS) {
+                if (has_children(t, new_prefix) == true) {
 
                     // Adding 1 to the suffix pointer will essentially delete the first character
                     // Shifting the "replaced" character to the prefix
@@ -173,7 +169,7 @@ int try_swap(match_t **set, trie_t * t, char *prefix, char *suffix, int edits_le
     new_prefix[len - 1] = suffix[0];
     new_prefix[len + 1] = '\0';
 
-    if (has_children(t, new_prefix) == EXIT_SUCCESS) {
+    if (has_children(t, new_prefix) == true) {
         // Adding 1 to the suffix pointer will essentially delete the first character
         rc = suggestions(set, t, new_prefix, suffix + 1, edits_left - 1, n);
     }
@@ -220,7 +216,7 @@ int try_insert(match_t **set, trie_t *t, char *prefix, char *suffix, int edits_l
                 new_prefix[len] = c;
                 new_prefix[len + 1] = '\0';
 
-                if (has_children(t, new_prefix) == EXIT_SUCCESS) {
+                if (has_children(t, new_prefix) == true) {
 
                     // Basically just inserting the new ASCII character to the string
                     rc = suggestions(set, t, new_prefix, suffix, edits_left - 1, n);
@@ -243,11 +239,11 @@ int try_insert(match_t **set, trie_t *t, char *prefix, char *suffix, int edits_l
 }
 
 // Helper function for suggestions(). Attempts to add a match to a suggestion set
-int attempt_add(match_t **set, trie_t *t, char *s, int edits_left, int n) {
+int try_add(match_t **set, trie_t *t, char *s, int edits_left, int n) {
     int i;
 
     // Check if the current string is in the trie
-    if (trie_search(t, s) == 1) {
+    if (trie_search(t, s) == IN_TRIE) {
 
         // Look for the string in the set to update it, or add it
         for (i = 0; i < n; i++) {
@@ -337,7 +333,7 @@ int suggestions(match_t **set, trie_t *t, char *prefix, char *suffix, int edits_
     strncpy(s, prefix, MAXLEN);
     strncat(s, suffix, MAXLEN);
 
-    if (attempt_add(set, t, s, edits_left, n) != EXIT_SUCCESS)  {
+    if (try_add(set, t, s, edits_left, n) != EXIT_SUCCESS)  {
         return EXIT_FAILURE;
     }
 

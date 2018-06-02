@@ -9,7 +9,7 @@ Test(suggestion, has_children_s0) {
     trie_t *t = trie_new('\0');
     trie_insert_string(t, "abc");
 
-    cr_assert_eq(has_children(t, "ab"), EXIT_SUCCESS, "has_children failed");
+    cr_assert_eq(has_children(t, "ab"), true, "has_children failed");
 }
 
 // Test has_children for failure
@@ -17,7 +17,7 @@ Test(suggestion, has_children_f0) {
     trie_t *t = trie_new('\0');
     trie_insert_string(t, "abc");
 
-    cr_assert_eq(has_children(t, "ac"), EXIT_FAILURE, "has_children failed");
+    cr_assert_eq(has_children(t, "ac"), false, "has_children failed");
 }
 
 // Test has_children for empty prefix
@@ -25,7 +25,7 @@ Test(suggestion, has_children_empty) {
     trie_t *t = trie_new('\0');
     trie_insert_string(t, "abc");
 
-    cr_assert_eq(has_children(t, ""), EXIT_SUCCESS, "has_children failed");
+    cr_assert_eq(has_children(t, ""), true, "has_children failed");
 }
 
 /*************   These functions individually test values for cmp_match   *************/

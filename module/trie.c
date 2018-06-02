@@ -157,7 +157,7 @@ int trie_insert_string(struct trie *t, char *word)
         }
 
         char curr = word[0];
-	index = (int)curr;
+	    index = (int)curr;
 
         int rc = trie_add_node(t, curr);
         if (rc != 0) {
@@ -290,8 +290,7 @@ int TrieInsert_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv,
     char *temp = RedisModule_StringPtrLen(argv[2], &dummy);
     char *empty = "";
     if (temp == NULL || strcmp(temp, empty) == 0) {
-    	return RedisModule_ReplyWithError(ctx, "ERR invalid value: must \
-                be a string");
+    	return RedisModule_ReplyWithError(ctx, "ERR invalid value: must be a string");
     } 
 
     struct trie *t;
@@ -322,8 +321,7 @@ int TrieContains_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv,
         REDISMODULE_READ|REDISMODULE_WRITE);
     int type = RedisModule_KeyType(key);
     if (type == REDISMODULE_KEYTYPE_EMPTY) {
-    	return RedisModule_ReplyWithError(ctx, "ERR invalid key: not an \
-                existing trie");
+    	return RedisModule_ReplyWithError(ctx, "ERR invalid key: not an existing trie");
     }
     else if (RedisModule_ModuleTypeGetType(key) != trie)
     {
@@ -341,11 +339,9 @@ int TrieContains_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv,
     if (c == 1) {
         RedisModule_ReplyWithSimpleString(ctx, "The trie contains the word.");
     } else if (c == 0) {
-        RedisModule_ReplyWithSimpleString(ctx, "The trie does not contain \
-                the word.");
+        RedisModule_ReplyWithSimpleString(ctx, "The trie does not contain the word.");
     } else {
-        RedisModule_ReplyWithSimpleString(ctx, "The trie contains it as a \
-                prefix but not as a word.");  
+        RedisModule_ReplyWithSimpleString(ctx, "The trie contains it as a prefix but not as a word.");  
     }       
     RedisModule_ReplicateVerbatim(ctx);
     return REDISMODULE_OK;

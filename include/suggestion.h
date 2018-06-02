@@ -9,7 +9,7 @@
 
 // The maximum length of a string we're willing to process
 // Longest word in english dictionary is 45 letters lol
-#define MAXLEN 60
+#define MAXLEN 100
 
 /* A simple way to store an approximate match and its score */
 typedef struct {
@@ -26,10 +26,10 @@ typedef struct {
  *  - s: A string. The prefix to check
  * 
  * Returns:
- *  - EXIT_SUCCESS if there is a word in the dictionary with the prefix
- *  - EXIT_FAILURE otherwise
+ *  - true if there is a word in the dictionary with the prefix
+ *  - false otherwise
 */
-int has_children(trie_t *t, char *s);
+bool has_children(trie_t *t, char *s);
 
 /*
  * Comparison function for qsort(). Returns which match_t has higher precedence.
