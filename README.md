@@ -174,3 +174,13 @@ TRIE.CONTAINS checks if a string exists in a given trie key. If the key does not
        "The trie does not contain the word."
        redis> T.CONTAINS key1 hello
        "The trie contains it as a prefix but not as a word."
+
+### TRIE.COMPLETIONS key value
+TRIE.COMPLETIONS returns the number of possible endings a given prefix has in a given trie key. If the key does not previously exist, an error will be thrown. Otherwise, the command will return either an integer with the number of possible endings a prefix has, or, if the prefix does not exist in the trie, will return 0.
+
+        redis> TRIE.INSERT key1 ball bash back baffle
+        (int) 0
+        redis> TRIE.COMPLETIONS key1 ba
+        (int) 4
+        redis> TRIE>COMPLETIONS key1 foo
+        (int) 0
