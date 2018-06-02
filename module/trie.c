@@ -306,6 +306,12 @@ int trie_count_completion(struct trie *t, char *pre)
     return trie_count_completion_recursive(end);
 }
 
+/* 
+    Since modules do not include header files typically, this is an early 
+    declaration of the suggestions() function since helper functions use them
+ */
+int suggestions(match_t **set, struct trie *t, char *prefix, char *suffix, int edits_left, int n);
+
 /*
     Sees if there are any words in a trie that contain a given prefix
     NOTE- awaiting the actual function from support tools
