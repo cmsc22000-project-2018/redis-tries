@@ -89,7 +89,7 @@ int trie_free(struct trie *t)
         }
     }
 
-    RedisModeule_Free(t->charlist);
+    RedisModule_Free(t->charlist);
     /* Used because the data structures are 
        originally RedisModule_Calloc'ed 
      */
