@@ -96,7 +96,7 @@ match_t** suggestion_set_new(trie_t *t, char *str, int max_edits, int n);
 
 /*
  * Takes a list of match_t's, sorts it, takes the highest n scoring strings out of it by
- * striping off the match_t wrapper
+ * stripping off the match_t wrapper
  * 
  * Parameters:
  *  - set: A list of match_t's
