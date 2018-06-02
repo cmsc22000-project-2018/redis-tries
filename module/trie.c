@@ -953,7 +953,6 @@ int TrieApproxMatch_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv,
     RedisModule_ReplyWithArray(ctx, amount);
     for (int i = 0; i < amount; i++) {
     	if (matches[i] == NULL) {
-    		printf("here5");
     		RedisModule_ReplyWithNull(ctx);
     	}
     	else {
