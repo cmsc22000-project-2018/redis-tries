@@ -266,7 +266,9 @@ Test(suggestion, suggestions_s1) {
     match_t **set = calloc(5, sizeof(match_t*));
 
     trie_insert_string(t, "stall");
-    trie_insert_string(t, "satll"); // success but not in list
+    trie_insert_string(t, "satll"); 
+    // Although the above item is within the correct edit distance, there isn't enough space for it
+    // since there are too many other matches and it's after the matches alphabetically
     trie_insert_string(t, "drall");
     trie_insert_string(t, "malt");
     trie_insert_string(t, "malfkt"); // not a return

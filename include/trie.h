@@ -95,8 +95,8 @@ int trie_insert_string(trie_t *t, char *word);
      - c: The character we want to check
 
     Returns:
-     - 0 if c exists in t
-     - 1 if it doesn't
+     - EXIT_SUCCESS if c exists in t
+     - EXIT_FAILURE if it doesn't
 */
 int trie_char_exists(trie_t *t, char c); 
 
