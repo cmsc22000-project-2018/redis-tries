@@ -805,18 +805,18 @@ char** suggestion_set_first_n(match_t **set, int n)
        If there aren't enough matching strings, each remaining spot is set to NULL.
      - NULL if there was an error
  */
-char** suggestion_list(struct trie *t, char *str, int max_edits, int amount) {
+char** suggestion_list(struct trie *t, char *str, int max_edits, int n) {
 
     assert(t != NULL);
     assert(str != NULL);
 
-    match_t **set = suggestion_set_new(t, str, max_edits, amount);
+    match_t **set = suggestion_set_new(t, str, max_edits, n);
 
     if (set == NULL) {
         return NULL;
     }
 
-    char **results = suggestion_set_first_n(set, amount);
+    char **results = suggestion_set_first_n(set, n);
 
     return results;
 }    
@@ -839,7 +839,7 @@ int TrieInsert_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv,
         return RedisModule_ReplyWithError(ctx, REDISMODULE_ERRORMSG_WRONGTYPE);
     }
     size_t dummy;
-    /* Number of strings wanting to be inserted */
+    /* Number of strings to be inserted */
     int nstrings = argc - 2;
     char *empty = "";
     char **temp = RedisModule_Calloc(nstrings, sizeof(char*));
@@ -903,7 +903,7 @@ int TrieContains_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv,
     return REDISMODULE_OK;
 }
 
-/* TRIE.APPROXMATCH key value (opt)value (opt)value */
+/* TRIE.APPROXMATCH key value1 (optional)value2 (optional)value3 */
 int TrieApproxMatch_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, 
         int argc) {
     RedisModule_AutoMemory(ctx); /* Use automatic memory management. */
@@ -926,7 +926,9 @@ int TrieApproxMatch_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv,
     
     size_t dummy;
     char *temp = RedisModule_StringPtrLen(argv[2], &dummy);
+    /* Default max number of edits */
     long long medits = 2;
+    /* Default amount of matches (strings) to return */
     long long amount = 10;
 
     /* Check for optional arguments */

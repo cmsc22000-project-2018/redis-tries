@@ -18,14 +18,14 @@ The trie_t struct is composed of:
 	2. trie_t \*children[ALPHABET_SIZE] // ALPHABET_SIZE is 256 for all possible characters.
 	3. int is_word // If is_word is 1, indicates that this is the end of a word. Otherwise 0.
 	4. trie_t \*parent // Parent trie_t for traversing backwards
-  	5. char \*charlist // Array of characters that are contained in the node and its children 
+  5. char \*charlist // Array of characters that are contained in the node and its children 
 
 The Operations for trie_t are as follows:
 1. \*trie_t trie_new(char current)
     
     **Purpose:** Creates and allocates memory for new trie_t.
     
-    **Details:** Sets current to be current, all children are initialized to NULL, is_word set to 0
+    **Details:** Sets current to be current, all children are initialized to NULL, is_word set to 0.
 
 2. \*trie_t trie_add_node(trie_t \*t, char c)
 
@@ -35,33 +35,33 @@ The Operations for trie_t are as follows:
 
 3. int trie_insert_string(trie_t \*t, char \*word) 
 
-    **Purpose:** Inserts word into trie.
+    **Purpose:** Inserts word into trie. 
 
-    **Details:** For each trie, check if entry of the next character exists in the children array:
+    **Details:** Returns 0 if word is successfully inserted into trie, 1 if otherwise. In the trie containing the last character, is_word is set to 1. 
 
 4. int trie_char_exists(trie_t \*t, char c)
 
-    **Purpose:** Checks if a char exists in a trie
+    **Purpose:** Checks if a character is contained with a trie.
 
-    **Details:** Checks if char c is contained within the trie
+    **Details:** Returns 0 if the character is contained, 1 if not.
 
 5. trie_t\* trie_get_subtrie(trie_t \*t, char \*word)
     
-    **Purpose:** Searches for a word/prefix in a trie 
+    **Purpose:** Searches for a word/prefix in a trie. 
 
-    **Details:** Returns a pointer to the end of the prefix (word) if it exists in the trie
+    **Details:** Returns a pointer to the end of the prefix (word) if it exists in the trie.
 
 6. int trie_search(trie_t \*t, char \*word)
 
     **Purpose:** Search for a word in a trie. 
 
-    **Details:** Returns 1 if word is found. Returns 0 if word is not found at all and -1 if word is found but end node's is_word is 0.
+    **Details:** Returns IN_TRIE (1) if word is found. Returns NOT_IN_TRIE (0) if word is not found at all and PARTIAL_IN_TRIE (-1) if word is found but end node's is_word is 0.
 
 7. int trie_count_completion(trie_t \*t, char \*pre)
 
-    **Purpose:** Count the number of different possible endings of a given prefix in a trie 
+    **Purpose:** Count the number of different possible endings of a given prefix in a trie. 
 
-    **Details:** Returns an integer of the number of endings of the prefix given, 0 if prefix doesn't exist
+    **Details:** Returns the number of endings of the prefix given, 0 if prefix doesn't exist.
 
 8. int trie_free(trie_t \*t)
 
@@ -161,7 +161,7 @@ TRIE.INSERT inserts a string into a given trie key. It can insert as many string
        (int) 0
 
 ### TRIE.CONTAINS key value
-TRIE.CONTAINS checks if a string exists in a given trie key. If the key does not previously exist, an error will be thrown. Otherwise, different messages will be printed based on whether the string is contained within the trie. If the string is contained within the trie, the integer 1 will be returned. If the string is not contained within the trie, the integer 0 will be returned. If the string is contained within the trie as a prefix but not as a word, the integer -1 will be returned.
+TRIE.CONTAINS checks if a string exists in a given trie key. If the trie key does not exist, an error will be thrown. Otherwise, different messages will be printed based on whether the string is contained within the trie. If the string is contained within the trie, the integer 1 will be returned. If the string is not contained within the trie, the integer 0 will be returned. If the string is contained within the trie as a prefix but not as a word, the integer -1 will be returned.
 
        redis> TRIE.INSERT key1 helloworld
        (int) 0
