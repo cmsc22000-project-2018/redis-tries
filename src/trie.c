@@ -95,18 +95,14 @@ int trie_insert_string(trie_t *t, char *word)
     }
 }
 
-int trie_char_exists(trie_t *t, char c) 
+bool trie_char_exists(trie_t *t, char c) 
 {
     assert(t != NULL);
     assert(t->charlist != NULL);
 
     int index = (int)c;
 
-    if (t->charlist[index] == '\0') {
-        return EXIT_FAILURE;
-    } 
-
-    return EXIT_SUCCESS;
+    return (t->charlist[index] != '\0');
 }
 
 trie_t *trie_get_subtrie(trie_t *t, char* word)
