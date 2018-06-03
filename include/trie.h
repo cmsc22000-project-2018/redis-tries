@@ -97,10 +97,10 @@ int trie_insert_string(trie_t *t, char *word);
      - c: The character we want to check
 
     Returns:
-     - EXIT_SUCCESS if c exists in t
-     - EXIT_FAILURE if it doesn't
+     - true if c exists in t
+     - false if it doesn't
 */
-int trie_char_exists(trie_t *t, char c); 
+bool trie_char_exists(trie_t *t, char c); 
 
 /* 
     Searches for a word/prefix in a trie 

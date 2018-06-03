@@ -106,7 +106,7 @@ int try_replace(match_t **set, trie_t *t, char *prefix, char *suffix, int edits_
 
         char c = (char)i;
 
-        if (trie_char_exists(t, c) == EXIT_SUCCESS) {
+        if (trie_char_exists(t, c) == true) {
 
             new_prefix = malloc(sizeof(char) * (MAXLEN + 1));
             if (new_prefix == NULL) {
@@ -197,7 +197,7 @@ int try_insert(match_t **set, trie_t *t, char *prefix, char *suffix, int edits_l
 
         char c = (char)i;
 
-        if (trie_char_exists(t, c) == EXIT_SUCCESS) {
+        if (trie_char_exists(t, c) == true) {
             
             new_prefix = malloc(sizeof(char) * (MAXLEN + 1));
             if (new_prefix == NULL) {
