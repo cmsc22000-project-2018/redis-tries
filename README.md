@@ -136,11 +136,11 @@ Redis is a data structures server so unlike in plain-key value stores in which s
 
 First clone this respository if you haven't already anywhere on your local system. To do this, first go into the directory you wish to clone the repository and then type into the command line: 
 
-    git clone https://github.com/cmsc22000-project-2018/redis-tries.git
+$ git clone https://github.com/cmsc22000-project-2018/redis-tries.git
 
 Inside the repository, initialize the submodule by typing into the command line:
 
-    git submodule update --init --recursive
+$ git submodule update --init --recursive
 
 Inside the *module* directory, type "make all" into the command line to build the trie.so library. (Note: The compiler warnings can be ignored.)
 
@@ -152,23 +152,22 @@ At this point, we will assume you have Redis fully installed and functional. (In
 
 Inside the redis-stable directory, run the Redis server by typing: 
 
-    redis-server
+$ redis-server
 
 At the end of every session, close the server with CTRL+C.
 
-<pre>
 Note: If you receive an error message saying "Creating Server TCP listening socket *:6379: bind: Address already in use," type:
 
-    redis-cli ping
+$ redis-cli ping
 
 If Redis replies with PONG, you should type:
   
-    redis-cli shutdown
-</pre>
+$ redis-cli shutdown
+
 
 In a separate window, run the Redis client by typing:
 
-    redis-cli
+$ redis-cli
 
 Inside of the Redis client, type in "MODULE LOAD [Path]" where [Path] is the previously copied path to your trie.so library. So in the context of my previous example, "/Users/Dustin/Desktop/redis-tries/module/trie.so"
 
