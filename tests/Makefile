@@ -5,7 +5,7 @@ RM = rm -f
 BIN = test-libtrie
 LDLIBS = -lcriterion -ltrie
 
-SRCS = test_trie.c test_suggestion.c
+SRCS = test_trie.c test_suggestion.c test_viz.c
 OBJS = $(SRCS:.c=.o)
 
 .PHONY: all
