@@ -7,18 +7,25 @@ branches:
     - master
     - dev
 
+sudo: required
+
+services: docker
+
 before_install:
     - sudo add-apt-repository -y ppa:snaipewastaken/ppa
     - sudo apt-get update -q
     - sudo apt-get install criterion-dev -y
+    - docker build -t redis-tries .
+    - docker run -d -p 6379:6379 redis-tries
+    - docker container list
 
-jobs:
-  include:
-    - stage: build
-      script: make clean all
-    - stage: test
-      script:
-          - make clean all
-          - make -C tests/ all
-          - tests/test-libtrie
-      
+script:
+    - make
+    - echo "Finished Building Implementation Library"
+    - make -C tests/
+    - tests/test-libtrie
+    - echo "Finished Testing Implementation Library"
+    - make -C module/
+    - echo "Finished Building Module Library"
+    - make -C hiredis/
+    - echo "Finished Testing Module Library"
