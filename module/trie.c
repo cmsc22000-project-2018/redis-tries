@@ -190,21 +190,17 @@ int trie_insert_string(struct trie *t, char *word)
      - c: The character we want to check
 
     Returns:
-     - EXIT_SUCCESS if c exists in t
-     - EXIT_FAILURE if it doesn't
+     - true if c exists in t
+     - false if it doesn't
 */
-int trie_char_exists(struct trie *t, char c) 
+bool trie_char_exists(struct trie *t, char c) 
 {
     assert(t != NULL);
     assert(t->charlist != NULL);
 
     int index = (int)c;
 
-    if (t->charlist[index] == '\0') {
-        return EXIT_FAILURE;
-    } 
-
-    return EXIT_SUCCESS;
+    return (t->charlist[index] != '\0');
 }
 
 /* 
@@ -323,13 +319,9 @@ int suggestions(match_t **set, struct trie *t, char *prefix, char *suffix, int e
      - true if there is a word in the dictionary with the prefix
      - false otherwise
 */
-bool has_children(struct trie *t, char *s) 
+bool trie_has_children(struct trie *t, char *s) 
 {    
-    if (trie_search(t, s) == NOT_IN_TRIE) {
-        return false;
-    }
-
-    return true;
+    return trie_search(t, s) == NOT_IN_TRIE;
 }
 
 /*
@@ -384,7 +376,7 @@ int move_on(match_t **set, struct trie *t, char *prefix, char *suffix, int edits
 
     new_prefix[len] = suffix[0];
 
-    if (has_children(t, new_prefix) == true) {
+    if (trie_has_children(t, new_prefix) == true) {
 
         // Move on to the next character, don't use up an edit
         rc = suggestions(set, t, new_prefix, suffix + 1, edits_left, n);
@@ -403,7 +395,7 @@ int try_delete(match_t **set, struct trie *t, char *prefix, char *suffix, int ed
 
     // Don't need to copy the string over as we aren't changing the prefix
 
-    if (has_children(t, prefix) == true) {
+    if (trie_has_children(t, prefix) == true) {
 
         // Adding 1 to the suffix pointer will essentially delete the first character
         rc = suggestions(set, t, prefix, suffix + 1, edits_left - 1, n);
@@ -429,7 +421,7 @@ int try_replace(match_t **set, struct trie *t, char *prefix, char *suffix, int e
 
         char c = (char)i;
 
-        if (trie_char_exists(t, c) == EXIT_SUCCESS) {
+        if (trie_char_exists(t, c) == true) {
 
             new_prefix = RedisModule_Alloc(sizeof(char) * (MAXLEN + 1));
             if (new_prefix == NULL) {
@@ -445,7 +437,7 @@ int try_replace(match_t **set, struct trie *t, char *prefix, char *suffix, int e
                 new_prefix[len] = c;
                 new_prefix[len + 1] = '\0';
 
-                if (has_children(t, new_prefix) == true) {
+                if (trie_has_children(t, new_prefix) == true) {
 
                     // Adding 1 to the suffix pointer will essentially delete the first character
                     // Shifting the "replaced" character to the prefix
@@ -492,7 +484,7 @@ int try_swap(match_t **set, struct trie *t, char *prefix, char *suffix, int edit
     new_prefix[len - 1] = suffix[0];
     new_prefix[len + 1] = '\0';
 
-    if (has_children(t, new_prefix) == true) {
+    if (trie_has_children(t, new_prefix) == true) {
         // Adding 1 to the suffix pointer will essentially delete the first character
         rc = suggestions(set, t, new_prefix, suffix + 1, edits_left - 1, n);
     }
@@ -516,11 +508,17 @@ int try_insert(match_t **set, struct trie *t, char *prefix, char *suffix, int ed
         return EXIT_FAILURE;
     }
 
+    /* 
+        Loops through all the ASCII characters
+        Crashes if 248 <= i <= 255
+        No idea why, only when those specific characters are passed through
+        even if you attempt each one individually
+     */
     for (i = 1; i < 248; i++) {
 
         char c = (char)i;
 
-        if (trie_char_exists(t, c) == EXIT_SUCCESS) {
+        if (trie_char_exists(t, c) == true) {
             
             new_prefix = RedisModule_Alloc(sizeof(char) * (MAXLEN + 1));
             if (new_prefix == NULL) {
@@ -535,7 +533,7 @@ int try_insert(match_t **set, struct trie *t, char *prefix, char *suffix, int ed
                 new_prefix[len] = c;
                 new_prefix[len + 1] = '\0';
 
-                if (has_children(t, new_prefix) == true) {
+                if (trie_has_children(t, new_prefix) == true) {
 
                     // Basically just inserting the new ASCII character to the string
                     rc = suggestions(set, t, new_prefix, suffix, edits_left - 1, n);
