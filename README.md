@@ -157,7 +157,7 @@ Inside the redis-stable directory, run the Redis server by typing:
 At the end of every session, close the server with CTRL+C.
 
 <pre>
-Note: If you receive an error message saying "Creating Server TCP listening socket \*:6379: bind: Address already in use," type:
+Note: If you receive an error message saying "Creating Server TCP listening socket *:6379: bind: Address already in use," type:
 
     $ redis-cli ping
 
