@@ -134,17 +134,38 @@ Redis is a data structures server so unlike in plain-key value stores in which s
 
 ## Installing the Module ##
 
-First clone this respository if you haven't already anywhere on your local system. To do this, first go into the directory you wish to clone the repository in and type into the command line "git clone https://github.com/cmsc22000-project-2018/redis-tries.git"
+First clone this respository if you haven't already anywhere on your local system. To do this, first go into the directory you wish to clone the repository and then type into the command line: 
 
-Inside the *module* directory, type "make all" into the command line to build the trie.so library.
+    git clone https://github.com/cmsc22000-project-2018/redis-tries.git
+
+Inside the RedisModulesSDK directory, type into the command line:
+
+    git submodule update --init --recursive
+
+Inside the *module* directory, type "make all" into the command line to build the trie.so library. (Note: The compiler warnings can be ignored.)
 
 Print the working directory and write it down, appending "trie.so" to the end of the path. So if my name is Dustin and my redis-tries directory is on my Desktop, I should have written down /Users/Dustin/Desktop/redis-tries/module/trie.so
 
 Before you begin running the Redis server, make sure to check the src directory in redis-stable for a file called "dump.rdb" if it exists, make sure to delete it before running the server every time you decide to run the server. This is because we have not implemented the data persistence functions.
 
-Assuming you have Redis fully installed and functional (instructions here if you don't: https://github.com/cmsc22000-project-2018/redis-tries/wiki/Design-Document-v1), run the Redis server with "redis-server" in the redis-stable directory.
+At this point, we will assume you have Redis fully installed and functional. (Instructions are here if you don't: https://github.com/cmsc22000-project-2018/redis-tries/wiki/Design-Document-v1.)
 
-In a separate window, run the Redis client with "redis-cli".
+
+> Note: Because Redis persists, if you have run the Redis server before, you should type:
+>    
+>    redis-cli ping
+>
+>If Redis replies with PONG, you should type:
+>
+>    redis-cli shutdown
+
+Inside the redis-stable directory, run the Redis server by typing: 
+
+    redis-server
+
+In a separate window, run the Redis client by typing:
+
+    redis-cli
 
 Inside of the Redis client, type in "MODULE LOAD [Path]" where [Path] is the previously copied path to your trie.so library. So in the context of my previous example, "/Users/Dustin/Desktop/redis-tries/module/trie.so"
 
