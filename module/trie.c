@@ -6,7 +6,7 @@
 #define NOT_IN_TRIE 0 
 #define PARTIAL_IN_TRIE (-1)
 // The maximum length of a string we're willing to process
-// Longest word in english dictionary is 45 letters
+// Longest word in the English dictionary is 45 letters
 #define MAXLEN 100
 
 #include "redismodule.h"
@@ -308,13 +308,12 @@ int trie_count_completion(struct trie *t, char *pre)
 
 /* 
     Since modules do not include header files typically, this is an early 
-    declaration of the suggestions() function since helper functions use them
+    declaration of the suggestions() function since helper functions use it
  */
 int suggestions(match_t **set, struct trie *t, char *prefix, char *suffix, int edits_left, int n);
 
 /*
     Sees if there are any words in a trie that contain a given prefix
-    NOTE- awaiting the actual function from support tools
   
     Parameters: 
      - t: A trie. Must point to a trie allocated with trie_new
@@ -639,7 +638,7 @@ int try_add(match_t **set, struct trie *t, char *s, int edits_left, int n)
 }
 
 /*
-    Performs a mass approximate sting match on all the words in a dictionary beginning with a prefix
+    Performs a mass approximate string match on all the words in a dictionary beginning with a prefix
     For more information on approx matching: https://www.wikiwand.com/en/Approximate_string_matching
   
     Parameters:
@@ -648,7 +647,7 @@ int try_add(match_t **set, struct trie *t, char *s, int edits_left, int n)
      - prefix: A prefix of a word. Must be contained in a dictionary or ""
      - suffix: A suffix of a word. Can also be ""
      - edits_left: The maximum levenshtein distance a word can be from prefix+suffix
-     - n: The length of set (amount of matches in the set)
+     - n: The length of set (number of matches in the set)
   
     Returns:
      - 0 for success, or a positive integer n for the number of errors encountered
@@ -903,7 +902,7 @@ int TrieContains_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv,
     return REDISMODULE_OK;
 }
 
-/* TRIE.APPROXMATCH key value1 (optional)value2 (optional)value3 */
+/* TRIE.APPROXMATCH key prefix (optional)max_edit_distance (optional)num_matches */
 int TrieApproxMatch_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, 
         int argc) {
     RedisModule_AutoMemory(ctx); /* Use automatic memory management. */
