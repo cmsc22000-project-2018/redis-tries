@@ -172,8 +172,8 @@ TRIE.CONTAINS checks if a string exists in a given trie key. If the trie key doe
        redis> TRIE.CONTAINS key1 hello
        (int) -1
 
-### TRIE.APPROXMATCH key value1 (optional)value2 (optional)value3
-TRIE.APPROXMATCH returns a list of suggested words that have the given prefix. It requires at least a key, whose value is an existing trie, and a prefix (value1) to look for within the trie. The first optional argument (value2) specifies the edit distance (or how close the words returned can be to the given prefix). If no value is given, the default is 2. The second optional argument (value 3) specifies the number of "matches", or possible completions, that will be returned by the command. If no value is given, the default is 10 (meaning 10 possible words will be given, if there aren't 10 possible endings the remaining slots will be filled with Redis (nil) values).
+### TRIE.APPROXMATCH key prefix (optional)max_edit_distance (optional)num_matches
+TRIE.APPROXMATCH returns a list of suggested words that have the given prefix. It requires at least a key, whose value is an existing trie, and a prefix (prefix) to look for within the trie. The first optional argument (max_edit_distance) specifies the edit distance (or how close the words returned can be to the given prefix). If no value is given, the default is 2. The second optional argument (num_matches) specifies the number of "matches", or possible completions, that will be returned by the command. If no value is given, the default is 10 (meaning 10 possible words will be given, if there aren't 10 possible endings the remaining slots will be filled with Redis (nil) values).
 
        redis> TRIE.INSERT key1 bat back ball bash baffle
        (int) 0
