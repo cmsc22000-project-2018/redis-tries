@@ -321,7 +321,7 @@ int suggestions(match_t **set, struct trie *t, char *prefix, char *suffix, int e
 */
 bool trie_has_children(struct trie *t, char *s) 
 {    
-    return trie_search(t, s) == NOT_IN_TRIE;
+    return trie_search(t, s) != NOT_IN_TRIE;
 }
 
 /*
