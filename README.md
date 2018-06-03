@@ -151,14 +151,15 @@ Before you begin running the Redis server, make sure to check the src directory 
 At this point, we will assume you have Redis fully installed and functional. (Instructions are here if you don't: https://github.com/cmsc22000-project-2018/redis-tries/wiki/Design-Document-v1.)
 
 
-> Note: Because Redis persists, if you have run the Redis server before, you should type:
+<pre>
+Note: Because Redis persists, if you have run the Redis server before, you should type:
    
     redis-cli ping
 
->If Redis replies with PONG, you should type:
+If Redis replies with PONG, you should type:
   
     redis-cli shutdown
-
+</pre>
 Inside the redis-stable directory, run the Redis server by typing: 
 
     redis-server
