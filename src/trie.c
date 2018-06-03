@@ -8,6 +8,7 @@
 #include <math.h>
 #include "trie.h"
 #include "utils.h"
+#include <stdbool.h>
 
 /* See trie.h */
 trie_t *trie_new(char current)
