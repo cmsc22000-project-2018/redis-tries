@@ -172,8 +172,9 @@ TRIE.CONTAINS checks if a string exists in a given trie key. If the trie key doe
        redis> TRIE.CONTAINS key1 hello
        (int) -1
        
+
 ### TRIE.COMPLETIONS key value
-TRIE.COMPLETIONS returns the number of possible endings a given prefix has in a given trie key. If the key does not previously exist, an error will be thrown. Otherwise, the command will return either an integer with the number of possible endings a prefix has, or, if the prefix does not exist in the trie, will return 0.
+TRIE.COMPLETIONS returns the number of possible endings a given prefix has in a given trie key. If the key does not previously exist, an error will be thrown. Otherwise, the command will return the number of possible endings the prefix has. In the case or the prefix not being in the trie, the command will return 0.
 
         redis> TRIE.INSERT key1 ball bash back baffle
         (int) 0
@@ -181,7 +182,10 @@ TRIE.COMPLETIONS returns the number of possible endings a given prefix has in a 
         (int) 4
         redis> TRIE.COMPLETIONS key1 foo
         (int) 0
+        redis> TRIE.COMPLETIONS key1 ball
+        (int) 1
         
+
 ### TRIE.APPROXMATCH key prefix (optional)max_edit_distance (optional)num_matches
 TRIE.APPROXMATCH returns a list of suggested words that have the given prefix. It requires at least a key, whose value is an existing trie, and a prefix (prefix) to look for within the trie. The first optional argument (max_edit_distance) specifies the edit distance (or how close the words returned can be to the given prefix). If no value is given, the default is 2. The second optional argument (num_matches) specifies the number of "matches", or possible completions, that will be returned by the command. If no value is given, the default is 10 (meaning 10 possible words will be given, if there aren't 10 possible endings the remaining slots will be filled with Redis (nil) values).
 
