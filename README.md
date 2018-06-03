@@ -37,7 +37,7 @@ The Operations for trie_t are as follows:
 
     **Purpose:** Inserts word into trie. 
 
-    **Details:** Returns 0 if word is successfully inserted into trie, 1 if otherwise. In the trie containing the last character, is_word is set to 1. 
+    **Details:** Returns 0 if word is successfully inserted into trie, 1 otherwise. In the trie containing the last character, is_word is set to 1. 
 
 4. int trie_char_exists(trie_t \*t, char c)
 
