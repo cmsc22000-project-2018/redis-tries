@@ -3,6 +3,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include "trie.h"
+#include <stdbool.h>
 
 /* Checks if trie_new() can properly allocate a new trie */
 Test(trie, trie_new)
@@ -320,7 +321,7 @@ Test(trie, trie_char_exists_failure0) {
 
     rc = trie_char_exists(t, 'c');
 
-    cr_assert_eq(rc, EXIT_FAILURE, "trie_char_exists succeeded when it shouldn't have");
+    cr_assert_eq(rc, false, "trie_char_exists succeeded when it shouldn't have");
 }
 
 /* Checking if trie_char_exists() can check for a char not in trie */
@@ -334,7 +335,7 @@ Test(trie, trie_char_exists_failure1) {
 
     rc = trie_char_exists(t, '7');
 
-    cr_assert_eq(rc, EXIT_FAILURE, "trie_char_exists succeeded when it shouldn't have");
+    cr_assert_eq(rc, false, "trie_char_exists succeeded when it shouldn't have");
 }
 
 /* Checking if trie_char_exists() can check for a char in trie */
@@ -348,7 +349,7 @@ Test(trie, trie_char_exists_success0) {
 
     rc = trie_char_exists(t, '-');
 
-    cr_assert_eq(rc, EXIT_SUCCESS, "trie_char_exists failed when it should have succeeded");
+    cr_assert_eq(rc, true, "trie_char_exists failed when it should have succeeded");
 }
 
 /* Checking if trie_char_exists() can check for a char in trie */
@@ -362,7 +363,7 @@ Test(trie, trie_char_exists_success1) {
 
     rc = trie_char_exists(t, 'd');
 
-    cr_assert_eq(rc, EXIT_SUCCESS, "trie_char_exists failed when it should have succeeded");
+    cr_assert_eq(rc, true, "trie_char_exists failed when it should have succeeded");
 }
 
 /* Checking if trie_char_exists() can check for a terminal character in trie */
@@ -374,7 +375,7 @@ Test(trie, trie_chars_exists_null) {
 
     rc = trie_char_exists(t, '\0');
 
-    cr_assert_eq(rc, EXIT_FAILURE, "trie_char_exists succeeded when it shouldn't have");
+    cr_assert_eq(rc, false, "trie_char_exists succeeded when it shouldn't have");
 }
 
 /* 
