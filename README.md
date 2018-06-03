@@ -138,7 +138,7 @@ First clone this respository if you haven't already anywhere on your local syste
 
     git clone https://github.com/cmsc22000-project-2018/redis-tries.git
 
-Inside the RedisModulesSDK directory, type into the command line:
+Inside the repository, initialize the submodule by typing into the command line:
 
     git submodule update --init --recursive
 
@@ -150,19 +150,21 @@ Before you begin running the Redis server, make sure to check the src directory 
 
 At this point, we will assume you have Redis fully installed and functional. (Instructions are here if you don't: https://github.com/cmsc22000-project-2018/redis-tries/wiki/Design-Document-v1.)
 
+Inside the redis-stable directory, run the Redis server by typing: 
+
+    redis-server
+
+At the end of every session, close the server with CTRL+C.
 
 <pre>
-Note: Because Redis persists, if you have run the Redis server before, you should type:
-   
+Note: If you receive an error message saying "Creating Server TCP listening socket *:6379: bind: Address already in use," type:
+
     redis-cli ping
 
 If Redis replies with PONG, you should type:
   
     redis-cli shutdown
 </pre>
-Inside the redis-stable directory, run the Redis server by typing: 
-
-    redis-server
 
 In a separate window, run the Redis client by typing:
 
