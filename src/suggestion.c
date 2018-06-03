@@ -15,11 +15,7 @@
 
 bool has_children(trie_t *t, char *s) {
     
-    if (trie_search(t, s) == NOT_IN_TRIE) {
-        return false;
-    }
-
-    return true;
+    return trie_search(t, s) != NOT_IN_TRIE;
 }
 
 /* See suggestion.h */
