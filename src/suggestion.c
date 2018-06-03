@@ -106,9 +106,7 @@ int try_replace(match_t **set, trie_t *t, char *prefix, char *suffix, int edits_
 
             new_prefix = malloc(sizeof(char) * (MAXLEN + 1));
             if (new_prefix == NULL) {
-
                 return EXIT_FAILURE;
-
             } else {
 
                 strncpy(new_prefix, prefix, MAXLEN);
@@ -197,9 +195,7 @@ int try_insert(match_t **set, trie_t *t, char *prefix, char *suffix, int edits_l
             
             new_prefix = malloc(sizeof(char) * (MAXLEN + 1));
             if (new_prefix == NULL) {
-
                 return EXIT_FAILURE;
-            
             } else {
 
                 strncpy(new_prefix, prefix, MAXLEN);
@@ -239,7 +235,6 @@ int try_add(match_t **set, trie_t *t, char *s, int edits_left, int n) {
 
         // Look for the string in the set to update it, or add it
         for (i = 0; i < n; i++) {
-
             if (set[i] == NULL) {
 
                 // String does not exist in the set, so add it
@@ -262,7 +257,6 @@ int try_add(match_t **set, trie_t *t, char *s, int edits_left, int n) {
                 }
 
                 return EXIT_SUCCESS;
-
             } else if (strcmp(set[i]->str, s) == 0) {
 
                 // String already exists in suggestion set
@@ -274,14 +268,12 @@ int try_add(match_t **set, trie_t *t, char *s, int edits_left, int n) {
 
                 // We don't want to trigger adding in place of the worst match
                 i = n + 1;
-
                 break;
             }
         }
 
         // If we hit the maximum amount of items, then see if we can add it in place of the worst match
         if (i == n) {
-
             i--;
 
             // Sort the set by edits_left and break ties alphabetically

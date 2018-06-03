@@ -170,7 +170,7 @@ int trie_insert_string(struct trie *t, char *word)
         }
 
         char curr = word[0];
-	    index = (int)curr;
+	index = (int)curr;
 
         int rc = trie_add_node(t, curr);
         if (rc != 0) {
@@ -223,7 +223,7 @@ struct trie *trie_get_subtrie(struct trie *t, char* word)
     len = strlen(word);
     curr = t;
     next = t->children;
-    
+
     /* 
        Iterates through each character of the word
        and goes to child of current trie with index
@@ -825,10 +825,11 @@ int TrieInsert_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv,
         int argc) {
     RedisModule_AutoMemory(ctx); /* Use automatic memory management. */
     
-    if (argc <= 2) return RedisModule_WrongArity(ctx);
+    if (argc <= 2) 
+        return RedisModule_WrongArity(ctx);
 
 	RedisModuleKey *key = RedisModule_OpenKey(ctx, argv[1],
-        REDISMODULE_READ|REDISMODULE_WRITE);
+        REDISMODULE_READ | REDISMODULE_WRITE);
     int type = RedisModule_KeyType(key);
 	if (type != REDISMODULE_KEYTYPE_EMPTY &&
         RedisModule_ModuleTypeGetType(key) != trie)
@@ -874,10 +875,11 @@ int TrieContains_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv,
         int argc) {
     RedisModule_AutoMemory(ctx); /* Use automatic memory management. */
 
-    if (argc != 3) return RedisModule_WrongArity(ctx);
+    if (argc != 3) 
+        return RedisModule_WrongArity(ctx);
 
     RedisModuleKey *key = RedisModule_OpenKey(ctx, argv[1],
-        REDISMODULE_READ|REDISMODULE_WRITE);
+        REDISMODULE_READ | REDISMODULE_WRITE);
     int type = RedisModule_KeyType(key);
     if (type == REDISMODULE_KEYTYPE_EMPTY) {
     	return RedisModule_ReplyWithError(ctx, "ERR invalid key: not an existing trie");
@@ -900,6 +902,31 @@ int TrieContains_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv,
     return REDISMODULE_OK;
 }
 
+/* TRIE.COMPLETIONS key value */
+int TrieCompletions_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, 
+        int argc) {
+    RedisModule_AutoMemory(ctx); /* Use automatic memory management. */
+
+    if (argc != 3) 
+        return RedisModule_WrongArity(ctx);
+
+    RedisModuleKey *key = RedisModule_OpenKey(ctx, argv[1],
+        REDISMODULE_READ | REDISMODULE_WRITE);
+
+    size_t dummy;
+    char *temp = RedisModule_StringPtrLen(argv[2], &dummy);
+
+    struct trie *t;
+    t = RedisModule_ModuleTypeGetValue(key);
+
+    /* Check for number of completions */
+    int c = trie_count_completion(t, temp);
+
+    RedisModule_ReplyWithLongLong(ctx, c); 
+    RedisModule_ReplicateVerbatim(ctx);
+    return REDISMODULE_OK;
+}
+
 /* TRIE.APPROXMATCH key prefix (optional)max_edit_distance (optional)num_matches */
 int TrieApproxMatch_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, 
         int argc) {
@@ -910,7 +937,7 @@ int TrieApproxMatch_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv,
     }
 
     RedisModuleKey *key = RedisModule_OpenKey(ctx, argv[1],
-        REDISMODULE_READ|REDISMODULE_WRITE);
+        REDISMODULE_READ | REDISMODULE_WRITE);
 
     int type = RedisModule_KeyType(key);
     if (type == REDISMODULE_KEYTYPE_EMPTY) {
@@ -920,7 +947,7 @@ int TrieApproxMatch_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv,
     {
         return RedisModule_ReplyWithError(ctx, REDISMODULE_ERRORMSG_WRONGTYPE);
     }
-    
+
     size_t dummy;
     char *temp = RedisModule_StringPtrLen(argv[2], &dummy);
     /* Default max number of edits */
@@ -997,6 +1024,10 @@ int RedisModule_OnLoad(RedisModuleCtx *ctx, RedisModuleString **argv, int argc) 
     if (RedisModule_CreateCommand(ctx, "trie.contains",
         TrieContains_RedisCommand, "readonly", 1, 1, 1) == REDISMODULE_ERR)
         return REDISMODULE_ERR;
+
+    if (RedisModule_CreateCommand(ctx, "trie.completions",
+        TrieCompletions_RedisCommand, "readonly", 1, 1, 1) == REDISMODULE_ERR)
+        return REDISMODULE_ERR;    
 
     if (RedisModule_CreateCommand(ctx, "trie.approxmatch",
         TrieApproxMatch_RedisCommand, "write deny-oom", 1, 1, 1) == REDISMODULE_ERR)

@@ -39,7 +39,7 @@ int trie_free(trie_t *t)
 {
     assert(t != NULL);
 
-    for (int i = 0; i < 256; i++){
+    for (int i = 0; i < 256; i++) {
         if (t->children[i] != NULL)
             trie_free(t->children[i]);
     }
@@ -72,6 +72,7 @@ int trie_insert_string(trie_t *t, char *word)
     } else {
         int len = strlen(word);
         int index;
+
         /* 
            For loop that goes through the string
            and adds all the unique characters to the

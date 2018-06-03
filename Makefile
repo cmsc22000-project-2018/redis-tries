@@ -6,6 +6,7 @@ RM = rm -rf
 DYNAMIC_LIB = libtrie.so
 LIBS = ${DYNAMIC_LIB}
 LDLIBS = -lm
+
 SRCS = src/trie.c src/suggestion.c
 OBJS = $(SRCS:.c=.o)
 
