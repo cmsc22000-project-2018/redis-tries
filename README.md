@@ -152,12 +152,12 @@ At this point, we will assume you have Redis fully installed and functional. (In
 
 
 > Note: Because Redis persists, if you have run the Redis server before, you should type:
->    
->    redis-cli ping
->
+   
+    redis-cli ping
+
 >If Redis replies with PONG, you should type:
->
->    redis-cli shutdown
+  
+    redis-cli shutdown
 
 Inside the redis-stable directory, run the Redis server by typing: 
 
