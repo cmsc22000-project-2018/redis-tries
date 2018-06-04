@@ -842,7 +842,7 @@ int TrieInsert_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv,
     char *empty = "";
     char **temp = RedisModule_Calloc(nstrings, sizeof(char*));
     for (int i = 0; i < nstrings; i++) {
-        temp[i] = RedisModule_StringPtrLen(argv[2 + i], &dummy);
+        temp[i] = strdup(RedisModule_StringPtrLen(argv[2 + i], &dummy));
         if (temp[i] == NULL || strcmp(temp[i], empty) == 0) {
             return RedisModule_ReplyWithError(ctx, "ERR invalid value: must be a string");
         } 
@@ -889,7 +889,7 @@ int TrieContains_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv,
         return RedisModule_ReplyWithError(ctx,REDISMODULE_ERRORMSG_WRONGTYPE);
     }
     size_t dummy;
-    char *temp = RedisModule_StringPtrLen(argv[2], &dummy);
+    char *temp = strdup(RedisModule_StringPtrLen(argv[2], &dummy));
 
     struct trie *t;
     t = RedisModule_ModuleTypeGetValue(key);
@@ -914,7 +914,7 @@ int TrieCompletions_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv,
         REDISMODULE_READ | REDISMODULE_WRITE);
 
     size_t dummy;
-    char *temp = RedisModule_StringPtrLen(argv[2], &dummy);
+    char *temp = strdup(RedisModule_StringPtrLen(argv[2], &dummy));
 
     struct trie *t;
     t = RedisModule_ModuleTypeGetValue(key);
@@ -949,7 +949,7 @@ int TrieApproxMatch_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv,
     }
 
     size_t dummy;
-    char *temp = RedisModule_StringPtrLen(argv[2], &dummy);
+    char *temp = strdup(RedisModule_StringPtrLen(argv[2], &dummy));
     /* Default max number of edits */
     long long medits = 2;
     /* Default amount of matches (strings) to return */
@@ -966,7 +966,7 @@ int TrieApproxMatch_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv,
     if (amount <= 0) {
         return RedisModule_ReplyWithError(ctx, "ERR invalid amount: cannot be less than 1");
     }
-    if (medits <= 0) {
+    if (medits < 0) {
         return RedisModule_ReplyWithError(ctx, "ERR invalid max number of edits: cannot be less than 1");
     }
 
