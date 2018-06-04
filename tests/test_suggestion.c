@@ -9,7 +9,7 @@ Test(suggestion, has_children_s0) {
     trie_t *t = trie_new('\0');
     trie_insert_string(t, "abc");
 
-    cr_assert_eq(has_children(t, "ab"), EXIT_SUCCESS, "has_children failed");
+    cr_assert_eq(has_children(t, "ab"), true, "has_children failed");
 }
 
 // Test has_children for failure
@@ -17,7 +17,7 @@ Test(suggestion, has_children_f0) {
     trie_t *t = trie_new('\0');
     trie_insert_string(t, "abc");
 
-    cr_assert_eq(has_children(t, "ac"), EXIT_FAILURE, "has_children failed");
+    cr_assert_eq(has_children(t, "ac"), false, "has_children failed");
 }
 
 // Test has_children for empty prefix
@@ -25,7 +25,7 @@ Test(suggestion, has_children_empty) {
     trie_t *t = trie_new('\0');
     trie_insert_string(t, "abc");
 
-    cr_assert_eq(has_children(t, ""), EXIT_SUCCESS, "has_children failed");
+    cr_assert_eq(has_children(t, ""), true, "has_children failed");
 }
 
 /*************   These functions individually test values for cmp_match   *************/
@@ -266,7 +266,9 @@ Test(suggestion, suggestions_s1) {
     match_t **set = calloc(5, sizeof(match_t*));
 
     trie_insert_string(t, "stall");
-    trie_insert_string(t, "satll"); // success but not in list
+    trie_insert_string(t, "satll"); 
+    // Although the above item is within the correct edit distance, there isn't enough space for it
+    // since there are too many other matches and it's after the matches alphabetically
     trie_insert_string(t, "drall");
     trie_insert_string(t, "malt");
     trie_insert_string(t, "malfkt"); // not a return

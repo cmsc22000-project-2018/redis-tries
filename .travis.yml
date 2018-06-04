@@ -18,24 +18,14 @@ before_install:
     - docker build -t redis-tries .
     - docker run -d -p 6379:6379 redis-tries
     - docker container list
-    
-jobs:
-  include:
-    - stage: build
-      script: make all
-      after_script: echo "Finished Building Implementation Library"
-    - stage: test
-      script:
-          - make
-          - make -C tests/
-          - tests/test-libtrie
-      after_script: echo "Finished Testing Implementation Library"
-    - stage: module build
-      script: make -C module/
-      after_script: echo "Finished Building Module Library"
-    - stage: module test
-      script:
-          - make -C hiredis/
-          - make
-          - make -C tests/
-      after_script: echo "Finished Testing Module Library"
+
+script:
+    - make
+    - echo "Finished Building Implementation Library"
+    - make -C tests/
+    - tests/test-libtrie
+    - echo "Finished Testing Implementation Library"
+    - make -C module/
+    - echo "Finished Building Module Library"
+    - make -C hiredis/
+    - echo "Finished Testing Module Library"

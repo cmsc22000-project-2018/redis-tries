@@ -16,57 +16,54 @@ The trie class is composed of the trie_t struct and its respective operations.
 The trie_t struct is composed of:
 	1. char current // The character the current trie contains
 	2. trie_t \*children[ALPHABET_SIZE] // ALPHABET_SIZE is 256 for all possible characters.
-	3. int is_word // if is_word is 1, indicates that this is the end of a word. Otherwise 0.
-	4. trie_t \*parent // parent trie_t for traversing backwards
+	3. int is_word // If is_word is 1, indicates that this is the end of a word. Otherwise 0.
+	4. trie_t \*parent // Parent trie_t for traversing backwards
+  5. char \*charlist // Array of characters that are contained in the node and its children 
 
 The Operations for trie_t are as follows:
-1. \*trie_t new_trie(char current)
+1. \*trie_t trie_new(char current)
     
     **Purpose:** Creates and allocates memory for new trie_t.
     
-    **Details:** Sets current to be current, all children are initialized to NULL, is_word set to 0
+    **Details:** Sets current to be current, all children are initialized to NULL, is_word set to 0.
 
-2. \*trie_t add_node(char current, trie_t \*t)
+2. \*trie_t trie_add_node(trie_t \*t, char c)
 
     **Purpose:** Creates new node in trie_t.
     
     **Details:** Set t->children[current] to be current, is_word for new node set to 0. 
 
-3. int insert_string(char \*word, trie_t \*t) 
+3. int trie_insert_string(trie_t \*t, char \*word) 
 
-    **Purpose:** Inserts word into trie.
+    **Purpose:** Inserts word into trie. 
 
-    **Details:** For each trie, check if entry of the next character exists in the children array:
+    **Details:** Returns 0 if word is successfully inserted into trie, 1 otherwise. In the trie containing the last character, is_word is set to 1. 
 
-                 If so, move into that node in the array
+4. int trie_char_exists(trie_t \*t, char c)
 
-                 If not, add a new node
+    **Purpose:** Checks if a character is contained with a trie.
 
-                 Then move on to the next character in string
+    **Details:** Returns 0 if the character is contained, 1 if not.
 
-                 Set the is_word of the last node to 1
+5. trie_t\* trie_get_subtrie(trie_t \*t, char \*word)
+    
+    **Purpose:** Searches for a word/prefix in a trie. 
 
-4. int delete_string(char \*word, trie_t \*t) 
+    **Details:** Returns a pointer to the end of the prefix (word) if it exists in the trie.
 
-      **Purpose:** Delete word in trie.
-
-      **Details:** Returns 1 if deleted. Conditions:
-
-                 If word is not in trie, trie is not modified. 
-                   
-                 If word is completely unique (no other part of the word is part of another word) then delete the entire word.
-
-                 If word is the prefix of another word in the trie, unmark the leaf node.
-
-                 If word is present in the trie, having at least one other word as a prefix, delete all the nodes up to the prefix.
-
-5. int trie_search(char \*word, trie_t \*t)
+6. int trie_search(trie_t \*t, char \*word)
 
     **Purpose:** Search for a word in a trie. 
 
-    **Details:** Returns 1 if word is found. Returns 0 if word is not found at all and -1 if word is found but end node's is_word is 0.
+    **Details:** Returns IN_TRIE (1) if word is found. Returns NOT_IN_TRIE (0) if word is not found at all and PARTIAL_IN_TRIE (-1) if word is found but end node's is_word is 0.
 
-6. int trie_free(trie_t \*t)
+7. int trie_count_completion(trie_t \*t, char \*pre)
+
+    **Purpose:** Count the number of different possible endings of a given prefix in a trie. 
+
+    **Details:** Returns the number of endings of the prefix given, 0 if prefix doesn't exist.
+
+8. int trie_free(trie_t \*t)
 
     **Purpose:** Free an entire trie.
 
@@ -137,17 +134,39 @@ Redis is a data structures server so unlike in plain-key value stores in which s
 
 ## Installing the Module ##
 
-First clone this respository if you haven't already anywhere on your local system. To do this, first go into the directory you wish to clone the repository in and type into the command line "git clone https://github.com/cmsc22000-project-2018/redis-tries.git"
+First clone this respository if you haven't already anywhere on your local system. To do this, first go into the directory you wish to clone the repository and then type into the command line: 
 
-Inside the *module* directory, type "make all" into the command line to build the trie.so library.
+    $ git clone https://github.com/cmsc22000-project-2018/redis-tries.git
+
+Inside the repository, initialize the submodule by typing into the command line:
+
+    $ git submodule update --init --recursive
+
+Inside the *module* directory, type "make all" into the command line to build the trie.so library. (Note: The compiler warnings can be ignored.)
 
 Print the working directory and write it down, appending "trie.so" to the end of the path. So if my name is Dustin and my redis-tries directory is on my Desktop, I should have written down /Users/Dustin/Desktop/redis-tries/module/trie.so
 
 Before you begin running the Redis server, make sure to check the src directory in redis-stable for a file called "dump.rdb" if it exists, make sure to delete it before running the server every time you decide to run the server. This is because we have not implemented the data persistence functions.
 
-Assuming you have Redis fully installed and functional (instructions here if you don't: https://github.com/cmsc22000-project-2018/redis-tries/wiki/Design-Document-v1), run the Redis server with "redis-server" in the redis-stable directory.
+At this point, we will assume you have Redis fully installed and functional. (Instructions are here if you don't: https://github.com/cmsc22000-project-2018/redis-tries/wiki/Design-Document-v1.)
 
-In a separate window, run the Redis client with "redis-cli".
+Inside the redis-stable directory, run the Redis server by typing: 
+
+    $ redis-server
+
+At the end of every session, close the server with CTRL+C.
+
+> Note: If you receive an error message saying "Creating Server TCP listening socket \*:6379: bind: Address already in use," type:
+
+    $ redis-cli ping
+
+> If Redis replies with PONG, you should type:
+ 
+    $ redis-cli shutdown
+
+In a separate window, run the Redis client by typing:
+
+    $ redis-cli
 
 Inside of the Redis client, type in "MODULE LOAD [Path]" where [Path] is the previously copied path to your trie.so library. So in the context of my previous example, "/Users/Dustin/Desktop/redis-tries/module/trie.so"
 
@@ -157,20 +176,68 @@ Your module should be loaded up. Check your server log for an indication that th
 
 Here are the current commands the module provides support for:
 
-### TRIE.INSERT key value
-TRIE.INSERT inserts a string into a given trie key. If the key does not previously exist, a new trie will be created and the string will be inserted into this new trie; otherwise the string will be inserted into the existing trie. Prints "Success" on success and returns 0 on error.        
+### TRIE.INSERT key value1 value2 ... valueN
+TRIE.INSERT inserts a string into a given trie key. It can insert as many strings as the user types into the commandline. If the key does not previously exist, a new trie will be created and the string will be inserted into this new trie; otherwise the string will be inserted into the existing trie. Returns 0 on success and otherwise, an integer showing how many words were failed to be inserted
 
-       redis> TRIE.INSERT key1 helloworld
-       "Success"
+       redis> TRIE.INSERT key1 helloworld foo bar
+       (int) 0
 
 ### TRIE.CONTAINS key value
-TRIE.CONTAINS checks if a string exists in a given trie key. If the key does not previously exist, an error will be thrown. Otherwise, different messages will be printed based on whether the string is contained within the trie. If the string is contained within the trie, the following will be printed: "The trie contains the word." If the string is not contained within the trie, the following will be printed: "The trie does not contain the word." If the string is contained within the trie as a prefix but not as a word, the following will be printed: "The trie contains it as a prefix but not as a word."
+TRIE.CONTAINS checks if a string exists in a given trie key. If the trie key does not exist, an error will be thrown. Otherwise, different values will be returned based on whether the string is contained within the trie. If the string is contained within the trie, the integer 1 will be returned. If the string is not contained within the trie, the integer 0 will be returned. If the string is contained within the trie as a prefix but not as a word, the integer -1 will be returned.
 
-       redis> T.INSERT key1 helloworld
-       "Success"
-       redis> T.CONTAINS key1 helloworld
-       "The trie contains the word."
-       redis> T.CONTAINS key1 goodbye
-       "The trie does not contain the word."
-       redis> T.CONTAINS key1 hello
-       "The trie contains it as a prefix but not as a word."
+       redis> TRIE.INSERT key1 helloworld
+       (int) 0
+       redis> TRIE.CONTAINS key1 helloworld
+       (int) 1
+       redis> TRIE.CONTAINS key1 goodbye
+       (int) 0
+       redis> TRIE.CONTAINS key1 hello
+       (int) -1
+       
+
+### TRIE.COMPLETIONS key value
+TRIE.COMPLETIONS returns the number of possible endings a given prefix has in a given trie key. If the key does not previously exist, an error will be thrown. Otherwise, the command will return the number of possible endings the prefix has. In the case of the prefix not being in the trie, the command will return 0.
+
+        redis> TRIE.INSERT key1 ball bash back baffle
+        (int) 0
+        redis> TRIE.COMPLETIONS key1 ba
+        (int) 4
+        redis> TRIE.COMPLETIONS key1 foo
+        (int) 0
+        redis> TRIE.COMPLETIONS key1 ball
+        (int) 1
+        
+
+### TRIE.APPROXMATCH key prefix (optional)max_edit_distance (optional)num_matches
+TRIE.APPROXMATCH returns a list of suggested words that have the given prefix. It requires at least a key, whose value is an existing trie, and a prefix (prefix) to look for within the trie. The first optional argument (max_edit_distance) specifies the edit distance (or how close the words returned can be to the given prefix). If no value is given, the default is 2. The second optional argument (num_matches) specifies the number of "matches", or possible completions, that will be returned by the command. If no value is given, the default is 10 (meaning 10 possible words will be given, if there aren't 10 possible endings the remaining slots will be filled with Redis (nil) values).
+
+       redis> TRIE.INSERT key1 bat back ball bash baffle
+       (int) 0
+       redis> TRIE.APPROXMATCH key1 ba
+        1) bat
+        2) back
+        3) ball
+        4) bash
+        5) (nil)
+        6) (nil)
+        7) (nil)
+        8) (nil)
+        9) (nil)
+        10) (nil)
+       redis> TRIE.APPROXMATCH key1 ba 3
+        1) bat
+        2) back
+        3) ball
+        4) bash
+        5) baffle
+        6) (nil)
+        7) (nil)
+        8) (nil)
+        9) (nil)
+        10) (nil)
+       redis> TRIE.APPROXMATCH key1 ba 2 5
+        1) bat
+        2) back
+        3) ball
+        4) bash
+        5) baffle
