@@ -967,7 +967,7 @@ int TrieApproxMatch_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv,
         return RedisModule_ReplyWithError(ctx, "ERR invalid amount: cannot be less than 1");
     }
     if (medits < 0) {
-        return RedisModule_ReplyWithError(ctx, "ERR invalid max number of edits: cannot be less than 1");
+        return RedisModule_ReplyWithError(ctx, "ERR invalid max number of edits: cannot be less than 0");
     }
 
     /* Get the trie */
