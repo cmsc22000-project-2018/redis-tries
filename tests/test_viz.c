@@ -23,25 +23,34 @@
  * returns 1 if identical
  */
 int compare_char_arr(char** actual, char** expected, int size){
-    int i, j;
+
+    if (actual == NULL && expected == NULL){
+        return 1;
+    }
+
+    if (actual == NULL || expected == NULL){
+        return 0;
+    }
+
+    int i;
 
     //loop through trie
     for(i = 0; i < size; i++){
         if(strcmp(actual[i], expected[i]) == 0)
             return 0;
-        }
     }
     return 1; 
 }
 
 /* eviz test cases */
 
-Test(eviz, empty_trie_true){
-    char** input = [""];
-    trie_t *t = new_trie(input);
+Test(eviz, empty_trie_true)
+{
+    char** input = {NULL};
+    trie_t *t = trie_new('\0');
 
     int size = 0;
-    char** actual = eviz(t);
+    char** actual = eviz(t, NULL, 0, NULL, NULL);
 
     int result = compare_char_arr(actual, input, size);
 
@@ -49,8 +58,9 @@ Test(eviz, empty_trie_true){
 }
 
 Test(eviz, one_first_letter_true){
-    char** input = ["a", "an", "and", "at"];
-    trie_t *t = new_trie(input);
+    char** input = {"a", "an", "and", "at"};
+
+    trie_t *t = trie_new(input);
 
     int size = 4;
     char** actual = eviz(t);
@@ -61,7 +71,7 @@ Test(eviz, one_first_letter_true){
 }
 
 Test(eviz, one_first_letter_false){
-    char ** input = ['a', 'an', 'and', 'at'];
+    char ** input = {'a', 'an', 'and', 'at';
     trie_t *t = new_trie(input);
 
     int size = 4;

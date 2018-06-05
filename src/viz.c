@@ -6,9 +6,10 @@ Made by Marco Harnam Kaisth and Hongji Liu */
 
 #include <string.h>
 #include <stdio.h>
+
 #include "trie.h"
 
-int lviz(trie_t* t, char path[], int level, char** return_arr, int* return_index)
+int lviz(trie_t* t, char* path, int level, char** return_arr, int* return_index)
 {
 	if (return_arr == NULL) {
         fprintf(stderr, "lviz: return_arr is NULL");
@@ -27,7 +28,7 @@ int lviz(trie_t* t, char path[], int level, char** return_arr, int* return_index
 		//Set the current index of the string to terminal char
 		return_arr[*return_index] = strdup(path);
 		//Put the constructed string into the array of strings to be printed
-		*return_index++; 
+		(*return_index)++; 
 		//Increment the current index of said array
 	}
 
@@ -66,7 +67,7 @@ int wviz(trie_t* t, char path[], int level, char** return_arr, int* return_index
 		// Set current char of string to terminating char
 		return_arr[*return_index] = strdup(path);
 		// Place string in constructed array to be printed
-		*return_index++;
+		(*return_index)++;
 		// Increment index in said array
 	}
 
@@ -155,7 +156,7 @@ int sviz(trie_t* t, char* input, char* str, int level, char** return_arr, int* r
      * Gets to the node where the input ends
      */
     for (size_t j = 0; j < input_size; ++j) {
-        subtrie = subtrie->children[input[j]];
+        subtrie = subtrie->children[(unsigned)input[j]];
     }
 
     /*
